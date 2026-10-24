@@ -2,6 +2,13 @@
 
 Die Logik liegt in `src/logic/planner.ts` und ist in `logic.test.ts` getestet.
 
+## Vergangene Tage
+
+Nur heute und spätere Tage sind planbar (`openDays` in `week.ts`). Vergangene Tage sind Historie:
+- Sie erscheinen blass, ohne Würfel und ohne „+ Mittag“.
+- Ein Gericht dort öffnet nur sein Rezept.
+- „Woche würfeln“ und der Assistent füllen ausschließlich offene Tage. Die letzte Woche ist komplett schreibgeschützt.
+
 ## Würfeln (`reroll`)
 
 Es gibt drei Varianten: die ganze Woche (alle sichtbaren Slots), einen Tag (sichtbare Slots des Tages) und einen einzelnen Slot (über das Slot-Sheet).

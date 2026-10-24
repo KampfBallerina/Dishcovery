@@ -1,7 +1,20 @@
 {
-  "tabs": { "label": "Bereiche", "week": "Woche", "dishes": "Gerichte", "shopping": "Einkauf" },
-  "common": { "close": "Schließen", "back": "Zurück", "edit": "Bearbeiten", "save": "Speichern" },
-  "meal": { "mittag": "Mittag", "abend": "Abend" },
+  "tabs": {
+    "label": "Bereiche",
+    "week": "Woche",
+    "dishes": "Gerichte",
+    "shopping": "Einkauf"
+  },
+  "common": {
+    "close": "Schließen",
+    "back": "Zurück",
+    "edit": "Bearbeiten",
+    "save": "Speichern"
+  },
+  "meal": {
+    "mittag": "Mittag",
+    "abend": "Abend"
+  },
   "week": {
     "this": "Diese Woche",
     "last": "Letzte Woche",
@@ -12,6 +25,7 @@
     "whatToEat": "Was essen wir?",
     "rollDay": "{day} neu würfeln",
     "open": "Noch offen",
+    "nothing": "Nichts geplant",
     "noDishes": "Leg zuerst ein paar Gerichte an, dann kann geplant und gewürfelt werden."
   },
   "slot": {
@@ -47,7 +61,8 @@
     "title": "Gerichte",
     "new": "Neues Gericht",
     "search": "Gericht oder Zutat suchen",
-    "empty": "Noch keine Gerichte. Leg das erste an, alle im Haushalt sehen es danach.",
+    "emptyTitle": "Noch keine Gerichte",
+    "empty": "Leg euer erstes Lieblingsgericht an. Alle im Haushalt sehen es danach und können es einplanen.",
     "noMatch": "Kein Gericht passt zur Suche.",
     "favorites": "Favoriten",
     "favorite": "Favorit",
@@ -98,7 +113,9 @@
   },
   "shopping": {
     "title": "Einkauf",
-    "nothingPlanned": "Für die nächsten Tage ist noch nichts geplant.",
+    "emptyTitle": "Noch nichts zu besorgen",
+    "nothingPlanned": "Sobald in der Woche Gerichte für die nächsten Tage stehen, entsteht hier mit einem Tipp die Einkaufsliste.",
+    "planWeek": "Woche planen",
     "pickDays": "Für welche Tage soll eingekauft werden?",
     "create": "Entwurf erstellen",
     "draftHint": "Alle im Haushalt sehen diesen Entwurf. Wählt ab, was schon da ist, und übergebt die Liste an Bring!, wenn alle einverstanden sind.",
@@ -106,36 +123,63 @@
     "add": "Hinzufügen",
     "toBring": "{n} Artikel an Bring! übergeben",
     "copy": "Stattdessen kopieren",
-    "copied": "Kopiert",
     "handedOver": "Am {date} an Bring! übergeben",
     "handedOverBy": "{name} hat die Liste am {date} an Bring! übergeben",
     "undo": "Rückgängig",
     "new": "Neuer Entwurf",
     "discard": "Verwerfen",
-    "discardConfirm": "Entwurf für alle verwerfen?"
+    "discardConfirm": "Entwurf für alle verwerfen?",
+    "copiedToast": "Liste kopiert, jetzt in Bring! einfügen",
+    "handedOverToast": "An Bring! übergeben"
   },
-  "settings": {
-    "title": "Einstellungen",
-    "household": "Haushalt und Sync",
-    "noAppKey": "Es ist noch kein Dropbox-App-Key eingetragen (src/config.ts). Bis dahin bleiben alle Daten nur auf diesem Gerät.",
-    "connectHint": "Verbinde Dropbox, damit alle im Haushalt dieselben Gerichte und denselben Plan sehen. Ohne Verbindung bleiben die Daten auf diesem Gerät.",
+  "welcome": {
+    "text": "Eure Gerichte, euer Wochenplan, eure Einkaufsliste. Für alle im Haushalt, auch ohne Internet.",
     "connect": "Mit Dropbox verbinden",
-    "account": "Konto",
-    "folder": "Haushaltsordner",
-    "noFolder": "Noch keiner gewählt",
-    "sync": "Sync",
-    "syncing": "Synchronisiert gerade",
-    "syncError": "Fehlgeschlagen ({error}). Änderungen bleiben gespeichert und werden später übertragen.",
-    "lastSync": "Zuletzt um {time}",
+    "skip": "Erst mal allein ausprobieren",
+    "note": "Dropbox speichert eure Gerichte in einem Ordner „Dishcovery“. Den legt die App selbst an."
+  },
+  "invite": {
+    "title": "Du wurdest eingeladen",
+    "text": "Du wurdest in einen Dishcovery-Haushalt eingeladen.",
+    "textFrom": "{name} hat dich in den Haushalt eingeladen.",
+    "merge": "Danach seht ihr dieselben Gerichte und denselben Wochenplan. Was du schon angelegt hast, kommt mit.",
+    "join": "Beitreten",
+    "joining": "Trete bei …",
+    "joined": "Du bist dem Haushalt beigetreten",
+    "later": "Später",
+    "failed": "Beitreten hat nicht geklappt. Prüfe die Internetverbindung und versuch es im Haushalt erneut."
+  },
+  "household": {
+    "title": "Haushalt",
+    "noAppKey": "Es ist noch kein Dropbox-App-Key eingetragen (src/config.ts). Bis dahin bleiben alle Daten nur auf diesem Gerät.",
+    "connectHint": "Verbinde Dropbox, damit alle im Haushalt dieselben Gerichte und denselben Plan sehen. Bis dahin bleibt alles auf diesem Gerät.",
+    "members": "Wer gehört dazu",
+    "membersOffline": "Die Mitglieder werden angezeigt, sobald wieder Internet da ist.",
+    "you": "(du)",
+    "pending": "Eingeladen, noch nicht beigetreten",
+    "inviteTitle": "Person einladen",
+    "inviteHint": "Dropbox schickt eine Einladung an diese Adresse. Die Person öffnet Dishcovery, meldet sich mit Dropbox an und tritt mit einem Tipp bei.",
+    "emailPlaceholder": "E-Mail-Adresse",
+    "invite": "Einladen",
+    "sending": "Lädt ein …",
+    "invited": "{email} ist eingeladen",
+    "invalidEmail": "Das sieht nicht nach einer E-Mail-Adresse aus.",
+    "inviteFailed": "Einladen hat nicht geklappt. Prüfe die Adresse und die Internetverbindung.",
+    "inviteMessage": "{name} lädt dich zu Dishcovery ein. Öffne die App und melde dich mit Dropbox an, um beizutreten.",
+    "syncTitle": "Synchronisieren",
+    "syncing": "Synchronisiert gerade …",
+    "syncError": "Letzter Sync fehlgeschlagen. Deine Änderungen sind gespeichert und werden später übertragen.",
+    "lastSync": "Alles aktuell, zuletzt um {time}",
     "notYet": "Noch nicht synchronisiert",
     "syncNow": "Jetzt synchronisieren",
-    "changeFolder": "Ordner wechseln",
+    "account": "Angemeldet als {name}",
     "logout": "Dropbox trennen",
-    "pickFolder": "Wähle den Ordner, den euer Haushalt in Dropbox teilt. Wer zuerst einrichtet, legt ihn an und teilt ihn danach in Dropbox mit den anderen.",
-    "emptyFolder": "Keine Unterordner",
-    "useFolder": "Diesen Ordner verwenden",
-    "newFolder": "Neuer Ordner hier",
-    "newFolderName": "Name des Ordners",
+    "logoutConfirm": "Dropbox auf diesem Gerät trennen? Deine Gerichte bleiben hier und in Dropbox erhalten, werden aber nicht mehr abgeglichen.",
+    "loggedOut": "Dropbox getrennt",
+    "reconnectTitle": "Einmal neu verbinden",
+    "reconnect": "Dishcovery braucht eine zusätzliche Freigabe, um Personen einzuladen. Verbinde Dropbox einmal neu, deine Daten bleiben erhalten.",
+    "reconnectShort": "Verbinde Dropbox im Haushalt einmal neu.",
+    "reconnectButton": "Neu verbinden",
     "offlineNote": "Alles funktioniert auch offline. Änderungen werden übertragen, sobald wieder Internet da ist."
   }
 }

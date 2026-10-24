@@ -3,8 +3,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db, save, type SlotKey, type Week } from '../db'
 import { locale, t } from '../i18n'
 import { reroll } from '../logic/planner'
-import { addDays, dishIdsOf, isoDate, mondayOf, shiftWeek, slotKey, visibleSlots, weekId } from '../logic/week'
-import { Icon, Plate, SettingsLink } from './components'
+import { addDays, dishIdsOf, isoDate, mondayOf, openDays, shiftWeek, slotKey, visibleSlots, weekId } from '../logic/week'
+import { HouseholdLink, Icon, Plate } from './components'
 import { SlotSheet } from './SlotSheet'
 import { useDishes } from './data'
 
@@ -28,16 +28,17 @@ export function WeekScreen() {
       ? `${monday.getDate()}.–${fmt(sunday, { day: 'numeric', month: 'long' })}`
       : `${fmt(monday, { day: 'numeric', month: 'short' })} – ${fmt(sunday, { day: 'numeric', month: 'short' })}`
 
+  const open = openDays(id, today)
   const recent = new Set(dishIdsOf(prev))
   const roll = (keys: SlotKey[]) => {
     const patch = reroll(week, keys, visibleSlots(week), dishes, recent)
     if (Object.keys(patch).length) save(db.weeks, id, patch as Partial<Week>)
   }
 
-  // The assistant fills the first open slot from today on, else today's dinner.
+  // The assistant fills the first empty slot from today on, else the next dinner.
   const openAssistant = () => {
-    const upcoming = visibleSlots(week).filter((k) => isoDate(addDays(monday, Number(k[0]))) >= today || offset > 0)
-    setTarget(upcoming.find((k) => !byId.has(week?.[k]?.dishId ?? '')) ?? upcoming[0] ?? slotKey(0, 'abend'))
+    const upcoming = visibleSlots(week, open)
+    setTarget(upcoming.find((k) => !byId.has(week?.[k]?.dishId ?? '')) ?? upcoming[0])
     setAssistant(true)
   }
 
@@ -45,23 +46,23 @@ export function WeekScreen() {
     <>
       <header className="week-head">
         <div className="week-nav">
-          <button className="icon-btn on-tomato" disabled={offset < 0} onClick={() => setId(shiftWeek(id, -1))} aria-label={t('week.previous')}>
-            <Icon name="back" />
-          </button>
           <div className="week-title">
             <h1>{t(offset < 0 ? 'week.last' : offset > 0 ? 'week.next' : 'week.this')}</h1>
             <p>{range}</p>
           </div>
-          <button className="icon-btn on-tomato" disabled={offset > 0} onClick={() => setId(shiftWeek(id, 1))} aria-label={t('week.nextAria')}>
+          <button className="icon-btn on-accent" disabled={offset < 0} onClick={() => setId(shiftWeek(id, -1))} aria-label={t('week.previous')}>
+            <Icon name="back" />
+          </button>
+          <button className="icon-btn on-accent" disabled={offset > 0} onClick={() => setId(shiftWeek(id, 1))} aria-label={t('week.nextAria')}>
             <Icon name="forward" />
           </button>
-          <SettingsLink light />
+          <HouseholdLink light />
         </div>
         <div className="week-actions">
-          <button className="btn on-tomato-solid" onClick={() => roll(visibleSlots(week))} disabled={!dishes.length}>
+          <button className="btn on-accent-solid" onClick={() => roll(visibleSlots(week, open))} disabled={!dishes.length || !open.length}>
             <Icon name="dice" /> {t('week.rollWeek')}
           </button>
-          <button className="btn on-tomato-ghost" onClick={openAssistant} disabled={!dishes.length}>
+          <button className="btn on-accent-ghost" onClick={openAssistant} disabled={!dishes.length || !open.length}>
             <Icon name="spark" /> {t('week.whatToEat')}
           </button>
         </div>
@@ -76,10 +77,11 @@ export function WeekScreen() {
       <ol className="days">
         {[0, 1, 2, 3, 4, 5, 6].map((d) => {
           const date = addDays(monday, d)
+          const past = !open.includes(d)
           const lunch = week?.[slotKey(d, 'mittag')]
           const meals = lunch ? (['mittag', 'abend'] as const) : (['abend'] as const)
           return (
-            <li key={d} className={'day' + (isoDate(date) === today ? ' today' : '')}>
+            <li key={d} className={'day' + (isoDate(date) === today ? ' today' : '') + (past ? ' past' : '')}>
               <div className="day-name">
                 <span className="dn">{fmt(date, { weekday: 'short' }).replace('.', '')}</span>
                 <span className="dd">{date.getDate()}.</span>
@@ -89,29 +91,40 @@ export function WeekScreen() {
                   const k = slotKey(d, m)
                   const slot = week?.[k]
                   const dish = byId.get(slot?.dishId ?? '')
-                  return (
-                    <button key={m} className="slot" onClick={() => (setTarget(k), setAssistant(false))}>
-                      <Plate dish={dish} size={52} locked={!!dish && slot?.locked} />
+                  const content = (
+                    <>
+                      <Plate dish={dish} size={past ? 40 : 52} locked={!past && !!dish && slot?.locked} />
                       <span className="slot-text">
                         {lunch && <span className="slot-meal">{t(`meal.${m}`)}</span>}
-                        <span className={dish ? 'slot-dish' : 'slot-open'}>{dish?.name ?? t('week.open')}</span>
+                        <span className={dish ? 'slot-dish' : 'slot-open'}>{dish?.name ?? t(past ? 'week.nothing' : 'week.open')}</span>
                       </span>
+                    </>
+                  )
+                  // Past days are history: a dish there only opens its recipe.
+                  if (past)
+                    return dish ? <a key={m} className="slot" href={`#/gerichte/${dish.id}`}>{content}</a> : <div key={m} className="slot">{content}</div>
+                  return (
+                    <button key={m} className="slot" onClick={() => (setTarget(k), setAssistant(false))}>
+                      {content}
                     </button>
                   )
                 })}
-                {!lunch && (
+                {!lunch && !past && (
                   <button className="add-lunch" onClick={() => save(db.weeks, id, { [slotKey(d, 'mittag')]: { dishId: null, locked: false } } as Partial<Week>)}>
                     <Icon name="plus" size={16} /> {t('meal.mittag')}
                   </button>
                 )}
               </div>
-              <button className="icon-btn" onClick={() => roll(visibleSlots(week, [d]))} disabled={!dishes.length} aria-label={t('week.rollDay', { day: fmt(date, { weekday: 'long' }) })}>
-                <Icon name="dice" />
-              </button>
+              {past ? (
+                <span />
+              ) : (
+                <button className="icon-btn" onClick={() => roll(visibleSlots(week, [d]))} disabled={!dishes.length} aria-label={t('week.rollDay', { day: fmt(date, { weekday: 'long' }) })}>
+                  <Icon name="dice" />
+                </button>
+              )}
             </li>
           )
-        })}
-      </ol>
+        })}      </ol>
 
       {target && (
         <SlotSheet

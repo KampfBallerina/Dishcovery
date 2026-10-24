@@ -9,22 +9,23 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg', 'apple-touch-icon-180x180.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'Dishcovery',
         short_name: 'Dishcovery',
         description: 'Gerichte und Wochenplan für den Haushalt',
         lang: 'de',
         display: 'standalone',
-        background_color: '#FBFAF8',
-        theme_color: '#E03C28',
+        background_color: '#ECEDE8',
+        theme_color: '#ECEDE8',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
           { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'] },
+      // The source logo (~0.9 MB) is only an asset for generating icons, not needed offline.
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'], globIgnores: ['**/Dishcovery_Logo_NoBackground.png'] },
     }),
   ],
 })

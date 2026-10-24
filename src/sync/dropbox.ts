@@ -14,6 +14,9 @@ export class DropboxError extends Error {
   get conflict() {
     return this.status === 409 && this.body.includes('conflict')
   }
+  get missingScope() {
+    return this.status === 401 && this.body.includes('missing_scope')
+  }
 }
 
 const redirectUri = () => location.origin + import.meta.env.BASE_URL
@@ -56,12 +59,15 @@ export async function finishLogin() {
   const r = await tokenRequest({ code, grant_type: 'authorization_code', code_verifier: verifier, redirect_uri: redirectUri() })
   await setMeta('auth', { refreshToken: r.refresh_token!, accessToken: r.access_token, expiresAt: Date.now() + r.expires_in * 1000 } satisfies Auth)
   await db.meta.delete('pkce')
-  const me = await rpc<{ name: { display_name: string } }>('users/get_current_account', null)
+  const me = await rpc<{ account_id: string; name: { display_name: string } }>('users/get_current_account', null)
   await setMeta('userName', me.name.display_name)
+  await setMeta('accountId', me.account_id)
 }
 
+/** Revokes the token at Dropbox (best effort, offline still disconnects) and forgets it locally. Dishes stay on the device. */
 export async function logout() {
-  await db.meta.bulkDelete(['auth', 'userName', 'root', 'cursor'])
+  await rpc('auth/token/revoke', null).catch(() => {})
+  await db.meta.bulkDelete(['auth', 'userName', 'accountId', 'root', 'cursor', 'inviteDismissed'])
 }
 
 async function token() {

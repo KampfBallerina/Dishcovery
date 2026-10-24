@@ -23,7 +23,11 @@ export const shiftWeek = (id: string, n: number) => weekId(addDays(mondayOf(id),
 export const isoDate = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
-export const slotKey = (day: number, meal: Meal): SlotKey => `${day}-${meal}`
+/** Day indexes (0 = Monday) from today on; past days are history and can't be planned anymore. */
+export const openDays = (id: string, today = isoDate(new Date())) =>
+  [0, 1, 2, 3, 4, 5, 6].filter((d) => isoDate(addDays(mondayOf(id), d)) >= today)
+
+export const slotKey =(day: number, meal: Meal): SlotKey => `${day}-${meal}`
 
 /** Dinner always, lunch only when switched on for that day. */
 export function visibleSlots(week: Week | undefined, days = [0, 1, 2, 3, 4, 5, 6]): SlotKey[] {

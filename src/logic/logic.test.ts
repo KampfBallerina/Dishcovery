@@ -3,7 +3,7 @@ import type { Dish, Week } from '../db'
 import { merge, isAhead } from '../sync/merge'
 import { pick, reroll, suggest } from './planner'
 import { collect, toText } from './shopping'
-import { mondayOf, shiftWeek, visibleSlots, weekId } from './week'
+import { mondayOf, openDays, shiftWeek, visibleSlots, weekId } from './week'
 
 const dish = (id: string, extra: Partial<Dish> = {}): Dish => ({
   id, _ts: {}, name: id, ingredients: [], steps: [], servings: 2, tags: [], favorite: false, ...extra,
@@ -26,6 +26,11 @@ describe('week', () => {
     expect(weekId(new Date(2027, 0, 1))).toBe('2026-w53')
     expect(mondayOf('2026-w43').getDate()).toBe(19)
     expect(shiftWeek('2026-w53', 1)).toBe('2027-w01')
+  })
+  it('only keeps today and later open for planning', () => {
+    expect(openDays('2026-w43', '2026-10-24')).toEqual([5, 6])
+    expect(openDays('2026-w42', '2026-10-24')).toEqual([])
+    expect(openDays('2026-w44', '2026-10-24')).toHaveLength(7)
   })
   it('shows lunch only when switched on', () => {
     const w = { id: 'x', _ts: {}, '2-mittag': { dishId: null, locked: false } } as Week

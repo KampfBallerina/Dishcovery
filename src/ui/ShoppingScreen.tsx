@@ -1,10 +1,10 @@
-﻿import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getMeta, save, SHOPPING_ID, type ShoppingDraft, type ShopItem } from '../db'
 import { locale, t } from '../i18n'
 import { collect, itemLabel, toText } from '../logic/shopping'
 import { addDays, isoDate, mondayOf, shiftWeek, visibleSlots, weekId } from '../logic/week'
-import { Icon, TopBar } from './components'
+import { EmptyState, Icon, TopBar, toast } from './components'
 import { useDishes } from './data'
 
 const update = (patch: Partial<ShoppingDraft>) => save(db.misc, SHOPPING_ID, patch)
@@ -48,7 +48,13 @@ function Generator({ onDone }: { onDone: () => void }) {
   }
 
   if (!days.length)
-    return <p className="empty-hint">{t('shopping.nothingPlanned')} <a href="#/woche">{t('tabs.week')}</a></p>
+    return (
+      <EmptyState icon="cart" title={t('shopping.emptyTitle')} text={t('shopping.nothingPlanned')}>
+        <a className="btn primary" href="#/woche">
+          <Icon name="week" /> {t('shopping.planWeek')}
+        </a>
+      </EmptyState>
+    )
 
   return (
     <div className="generator">
@@ -77,7 +83,6 @@ function Generator({ onDone }: { onDone: () => void }) {
 
 function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
   const [extra, setExtra] = useState('')
-  const [copied, setCopied] = useState(false)
   const done = !!draft.handedOverAt
   const setItem = (key: string, patch: Partial<ShopItem>) => update({ items: draft.items.map((i) => (i.key === key ? { ...i, ...patch } : i)) })
 
@@ -92,15 +97,13 @@ function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
     const text = toText(draft.items)
     try {
       if (how === 'share') await navigator.share({ title: t('shopping.title'), text })
-      else {
-        await navigator.clipboard.writeText(text)
-        setCopied(true)
-      }
+      else await navigator.clipboard.writeText(text)
     } catch (e) {
       if ((e as Error).name === 'AbortError') return // share sheet dismissed: nothing was handed over
       throw e
     }
     await update({ handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
+    toast(t(how === 'copy' ? 'shopping.copiedToast' : 'shopping.handedOverToast'))
   }
 
   const needed = draft.items.filter((i) => i.needed).length
@@ -149,7 +152,7 @@ function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
               </button>
             )}
             <button className="btn wide" onClick={() => handOver('copy')} disabled={!needed}>
-              {t(copied ? 'shopping.copied' : 'shopping.copy')}
+              {t('shopping.copy')}
             </button>
           </>
         )}

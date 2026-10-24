@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { t } from '../i18n'
-import { Chip, Icon, Plate, TopBar } from './components'
+import { Chip, EmptyState, Icon, Plate, TopBar } from './components'
 import { knownTags, useDishes, useLastEaten, weeksSince } from './data'
 
 export function DishesScreen() {
@@ -23,20 +23,19 @@ export function DishesScreen() {
 
   return (
     <>
-      <TopBar title={t('dishes.title')}>
-        <a className="icon-btn" href="#/gerichte/neu" aria-label={t('dishes.new')}>
-          <Icon name="plus" />
+      <TopBar title={t('dishes.title')} />
+      {dishes.length > 0 && (
+        <a className="fab" href="#/gerichte/neu" aria-label={t('dishes.new')}>
+          <Icon name="plus" size={28} />
         </a>
-      </TopBar>
+      )}
 
       {dishes.length === 0 ? (
-        <div className="empty-state">
-          <Plate size={120} />
-          <p>{t('dishes.empty')}</p>
+        <EmptyState title={t('dishes.emptyTitle')} text={t('dishes.empty')}>
           <a className="btn primary" href="#/gerichte/neu">
             <Icon name="plus" /> {t('dishes.new')}
           </a>
-        </div>
+        </EmptyState>
       ) : (
         <>
           <div className="list-tools">

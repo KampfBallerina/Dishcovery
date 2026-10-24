@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { DROPBOX_APP_KEY } from '../config'
+import { getMeta } from '../db'
 import { t } from '../i18n'
-import { Icon, type IconName } from './components'
+import { Icon, Toaster, type IconName } from './components'
 import { WeekScreen } from './WeekScreen'
 import { DishesScreen } from './DishesScreen'
 import { DishDetail } from './DishDetail'
 import { DishEditor } from './DishEditor'
 import { CookMode } from './CookMode'
 import { ShoppingScreen } from './ShoppingScreen'
-import { SettingsScreen } from './SettingsScreen'
+import { HouseholdScreen } from './HouseholdScreen'
+import { HouseholdPrompts, Welcome } from './Onboarding'
 
 // Hash routes so GitHub Pages never has to know about client paths.
 export const go = (path: string) => (location.hash = path)
@@ -34,6 +38,9 @@ const tabs: { path: string; icon: IconName; label: string }[] = [
 
 export function App() {
   const [section = 'woche', id, sub] = useRoute()
+  const welcome = useLiveQuery(async () => !!DROPBOX_APP_KEY && !(await getMeta('auth')) && !(await getMeta('welcomeSkipped')))
+  if (welcome === undefined) return null
+  if (welcome) return <Welcome />
 
   if (section === 'gerichte' && id && sub === 'kochen') return <CookMode id={id} />
 
@@ -43,7 +50,7 @@ export function App() {
   else if (section === 'gerichte' && id) screen = <DishDetail id={id} />
   else if (section === 'gerichte') screen = <DishesScreen />
   else if (section === 'einkauf') screen = <ShoppingScreen />
-  else if (section === 'einstellungen') screen = <SettingsScreen />
+  else if (section === 'haushalt') screen = <HouseholdScreen />
   else screen = <WeekScreen />
 
   return (
@@ -57,6 +64,8 @@ export function App() {
           </a>
         ))}
       </nav>
+      <HouseholdPrompts />
+      <Toaster />
     </>
   )
 }

@@ -184,9 +184,10 @@ export function DishEditor({ id }: { id?: string }) {
         <textarea rows={3} value={form.notes} onChange={(e) => set({ notes: e.target.value })} />
       </label>
 
-      <div className="editor-actions">
-        <button className="btn primary" type="submit"><Icon name="check" /> {t('common.save')}</button>
-        {id && <button className="btn danger" type="button" onClick={remove}><Icon name="trash" /> {t('editor.delete')}</button>}
+      {id && <button className="btn danger wide" type="button" onClick={remove}><Icon name="trash" /> {t('editor.delete')}</button>}
+      {/* Save stays in thumb reach while scrolling through a long recipe. */}
+      <div className="save-bar">
+        <button className="btn primary wide big" type="submit"><Icon name="check" /> {t('common.save')}</button>
       </div>
     </form>
   )

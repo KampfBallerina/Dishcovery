@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import type { Dish } from '../db'
 import { t } from '../i18n'
 import { usePhotoUrl } from '../photo'
@@ -10,7 +10,6 @@ const paths = {
   unlock: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.6-1.8" /></>,
   plus: <path d="M12 5v14M5 12h14" />,
   minus: <path d="M5 12h14" />,
-  gear: <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></>,
   heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" />,
   share: <><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" /><path d="M16 6l-4-4-4 4M12 2v13" /></>,
@@ -27,6 +26,8 @@ const paths = {
   check: <path d="M5 12.5l4.5 4.5L19 7.5" />,
   video: <><rect x="3" y="6" width="13" height="12" rx="2" /><path d="M16 10.5l5-3v9l-5-3z" /></>,
   link: <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />,
+  people: <><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5" /><path d="M15.5 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.5 3.5 5.2" /></>,
+  mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 6.5l8.5 6.5 8.5-6.5" /></>,
   camera: <><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>,
 }
 export type IconName = keyof typeof paths
@@ -48,6 +49,18 @@ export function Plate({ dish, size = 56, locked }: { dish?: Dish; size?: number;
       {url ? <img src={url} alt="" /> : dish ? <span className="plate-letter">{dish.name.trim()[0]?.toUpperCase()}</span> : null}
       {locked && <span className="plate-lock"><Icon name="lock" size={Math.max(12, size * 0.22)} /></span>}
     </span>
+  )
+}
+
+/** Empty screen as an invitation: an empty plate (optionally with an icon), one sentence, one action. */
+export function EmptyState({ icon, title, text, children }: { icon?: IconName; title: string; text: string; children: ReactNode }) {
+  return (
+    <div className="empty-state">
+      <span className="plate empty empty-plate" aria-hidden="true">{icon && <Icon name={icon} size={44} />}</span>
+      <h2>{title}</h2>
+      <p>{text}</p>
+      {children}
+    </div>
   )
 }
 
@@ -75,9 +88,10 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   )
 }
 
+/** Same header on every screen: back (sub pages) or large title (tabs), actions right, household last. */
 export function TopBar({ title, back, children }: { title: string; back?: string; children?: ReactNode }) {
   return (
-    <header className="topbar">
+    <header className={'topbar' + (back ? ' sub' : '')}>
       {back && (
         <a className="icon-btn" href={back} aria-label={t('common.back')}>
           <Icon name="back" />
@@ -86,20 +100,42 @@ export function TopBar({ title, back, children }: { title: string; back?: string
       <h1>{title}</h1>
       <div className="topbar-actions">
         {children}
-        <SettingsLink />
+        {!back && <HouseholdLink />}
       </div>
     </header>
   )
 }
 
-/** Gear with a dot when sync needs attention. */
-export function SettingsLink({ light }: { light?: boolean }) {
+/** People icon with a dot when sync needs attention. */
+export function HouseholdLink({ light }: { light?: boolean }) {
   const s = useSyncStatus()
   return (
-    <a className={'icon-btn' + (light ? ' on-tomato' : '')} href="#/einstellungen" aria-label={t('settings.title')}>
-      <Icon name="gear" />
+    <a className={'icon-btn' + (light ? ' on-accent' : '')} href="#/haushalt" aria-label={t('household.title')}>
+      <Icon name="people" />
       {(s.state === 'error' || s.state === 'off') && <span className="dot" aria-hidden="true" />}
     </a>
+  )
+}
+
+let toastListener: (msg: string) => void = () => {}
+/** Short confirmation at the bottom, e.g. "Eingeladen". */
+export const toast = (msg: string) => toastListener(msg)
+
+export function Toaster() {
+  const [msg, setMsg] = useState<string>()
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>
+    toastListener = (m) => {
+      setMsg(m)
+      clearTimeout(timer)
+      timer = setTimeout(() => setMsg(undefined), 2600)
+    }
+    return () => clearTimeout(timer)
+  }, [])
+  return (
+    <div className="toast-slot" role="status" aria-live="polite">
+      {msg && <div className="toast" key={msg}><Icon name="check" size={18} /> {msg}</div>}
+    </div>
   )
 }
 

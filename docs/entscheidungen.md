@@ -19,8 +19,10 @@
 | Einkauf | geteilter Entwurf aus gewählten Tagen; alle können abwählen und ergänzen; eine Person übergibt ihn bewusst an Bring!, wenn der Haushalt einverstanden ist; danach als „übergeben“ markiert | Bring! (mit Alexa) bleibt die einzige echte Einkaufsliste |
 | Bring! | Übergabe per Teilen-Menü oder Zwischenablage, keine API | Bring! hat keine offizielle API; die inoffizielle bräuchte das Passwort und einen Proxy |
 | Sprache | Deutsch, alle Texte in `de.json`, vorbereitet für weitere Sprachen | |
-| Navigation | Tabs Woche, Gerichte, Einkauf; Einstellungen über das Zahnrad | |
-| Look | warm, Tomatenrot, Hell/Dunkel automatisch | |
+| Navigation | Tabs Woche, Gerichte, Einkauf; „Haushalt“ über das Personen-Symbol oben rechts | |
+| Haushaltsordner | wird automatisch als `/Dishcovery` angelegt, ohne Ordnerauswahl | so einfach wie möglich, keine Bedienfehler (Wunsch des Nutzers) |
+| Einladen | per E-Mail im Haushalt; Eingeladene melden sich nur an und tippen im Fenster auf „Beitreten“ | Wunsch des Nutzers |
+| Look | Fog als Fläche, Marigold als Akzent, Hell/Dunkel automatisch; Logo `Dishcovery_Logo_NoBackground.png` | Vorgabe des Nutzers (ersetzt das anfängliche Tomatenrot) |
 
 ## Bewusst weggelassen (Ideen für später)
 
