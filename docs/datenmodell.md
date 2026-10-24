@@ -43,11 +43,16 @@ Die Schlüssel haben die Form `"<tag>-<mahlzeit>"`, also `0-abend` bis `6-mittag
 - Der Mittag ist nur sichtbar, wenn sein Schlüssel ein Objekt ist. `null` oder ein fehlender Schlüssel bedeuten ausgeblendet.
 - Die Slots liegen bewusst flach auf oberster Ebene, damit der Merge pro Feld pro Slot greift.
 
-## Einkaufsentwurf (`ShoppingDraft`)
+## Einkauf (`ShoppingDraft`, id `einkauf`)
 
-- `items[]`: `{ key, name, amount?, unit?, count, needed, manual? }`
-- `createdBy`
-- `handedOverAt`, `handedOverBy`: gesetzt, sobald die Liste an Bring! übergeben ist
-- `deleted`: Entwurf verworfen
+Die Liste selbst wird **live aus dem Wochenplan berechnet** (`shoppingList()` in `logic/shopping.ts`). Gespeichert und synchronisiert werden nur die Änderungen des Haushalts:
 
-shortcut: `items` ist ein einziges Feld. Ändern zwei Personen offline gleichzeitig verschiedene Artikel, gewinnt eine Liste ganz. Auf Artikel als eigene Felder umbauen, falls das in der Praxis stört.
+- `dayChoice`: Tag (`"2026-w44/0"`) → mit oder ohne; fehlt der Eintrag, zählen die nächsten 7 Tage
+- `excluded`: abgewählte Artikel-Schlüssel (`name|einheit`), also „schon da“
+- `sent`: schon an Bring! geschickte Schlüssel. Sie erscheinen unter „Schon bei Bring!“ und werden nicht erneut geschickt; `afterSend()` entfernt Schlüssel, die nicht mehr auf der Liste stehen.
+- `extra`: eigene Artikel
+- `handedOverAt`, `handedOverBy`: wann und von wem zuletzt geschickt
+
+Ältere Felder (`items`, `deleted`, `createdBy`) aus der ersten Version werden ignoriert.
+
+shortcut: Jedes Array wird als ein Feld gemergt. Ändern zwei Personen offline gleichzeitig, gewinnt eine Seite. Auf Felder pro Artikel umbauen, falls das stört. Ein schon gesendeter Schlüssel bleibt „gesendet“, auch wenn später mehr Menge dazukommt.

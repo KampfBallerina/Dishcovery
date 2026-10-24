@@ -1,21 +1,19 @@
-import { getMeta, type ShopItem } from '../db'
-import { DropboxError, rpc, upload, type ListResult } from './dropbox'
+import { getMeta, setMeta, type ShopItem } from '../db'
+import { DropboxError, rpc, upload } from './dropbox'
 
 /**
  * Bring!'s documented JSON import (bring-import-dev-guide, "Import with JSON File"): Bring! reads a JSON file
  * from an https URL. We put it into the household folder and share it via a Dropbox link. See docs/bring.md.
  */
-export async function bringImportUrl(items: ShopItem[], name: string, spec: (i: ShopItem) => string): Promise<string> {
+async function publish(items: ShopItem[], name: string, spec: (i: ShopItem) => string): Promise<string> {
   const root = await getMeta<string>('root')
   if (!root) throw new Error('no-household')
-  const dir = `${root}/bring` // outside the synced folders, so the sync never reads it
-  try {
-    // Only the latest list stays (and with it only one public link).
-    for (const e of (await rpc<ListResult>('files/list_folder', { path: dir })).entries)
-      await rpc('files/delete_v2', { path: e.path_lower })
-  } catch (e) {
-    if (!(e instanceof DropboxError && e.status === 409)) throw e // folder doesn't exist yet
-  }
+  // Each device only replaces its own previous file, so another phone's prepared link stays valid.
+  const previous = await getMeta<string>('bringFile')
+  if (previous)
+    await rpc('files/delete_v2', { path: previous }).catch((e) => {
+      if (!(e instanceof DropboxError && e.status === 409)) throw e
+    })
   const app = location.origin + import.meta.env.BASE_URL
   const body = {
     author: 'Dishcovery',
@@ -28,9 +26,10 @@ export async function bringImportUrl(items: ShopItem[], name: string, spec: (i: 
     nutrition: {},
     items: items.map((i) => ({ itemId: i.name, spec: spec(i) })),
   }
-  // A new file name per hand-over, so Bring! can't serve a cached older list.
-  const path = `${dir}/liste-${Date.now()}.json`
+  // Outside the synced folders; a new name each time, so Bring! can't serve a cached older list.
+  const path = `${root}/bring/liste-${Date.now()}.json`
   await upload(path, JSON.stringify(body))
+  await setMeta('bringFile', path)
   const { url } = await rpc<{ url: string }>('sharing/create_shared_link_with_settings', { path })
   // Raw file instead of Dropbox's preview page. Bring! only treats a URL as JSON import when it ends in ".json"
   // (tested against its parser), and Dropbox links end in "?rlkey=…", so a dummy parameter goes last.
@@ -41,6 +40,24 @@ export async function bringImportUrl(items: ShopItem[], name: string, spec: (i: 
   return raw.toString()
 }
 
-export const bringDeeplink = (fileUrl: string) =>
-  'https://api.getbring.com/rest/bringrecipes/deeplink?' +
-  new URLSearchParams({ url: fileUrl, source: 'web', baseQuantity: '1', requestedQuantity: '1' })
+let queue: Promise<unknown> = Promise.resolve()
+/** Uploads one at a time, so quick list edits don't leave orphaned files behind. */
+export function prepareForBring(items: ShopItem[], name: string, spec: (i: ShopItem) => string): Promise<string> {
+  const run = queue.then(() => publish(items, name, spec))
+  queue = run.catch(() => {})
+  return run.then(bringDeeplink)
+}
+
+/**
+ * Builds Bring!'s own app link directly (what its deeplink API redirects to in the end). deeplink.getbring.com is a
+ * universal link of the Bring! app, so iOS opens the app without a web page in between.
+ */
+export function bringDeeplink(fileUrl: string) {
+  const parser =
+    'https://api.getbring.com/rest/bringrecipes/parser?' +
+    new URLSearchParams({ url: fileUrl, baseQuantity: '1', requestedQuantity: '1' })
+  return (
+    'https://deeplink.getbring.com/import?' +
+    new URLSearchParams({ type: 'RECIPE', src: btoa(parser), bring_source: 'importDeeplink', bring_campaign: 'importRecipe' })
+  )
+}

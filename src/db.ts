@@ -55,10 +55,16 @@ export interface ShopItem {
   needed: boolean
   manual?: boolean
 }
+/** The shopping list itself is derived live from the week plan; this only stores the household's changes. */
 export interface ShoppingDraft extends Synced {
-  // shortcut: items merge as one field (concurrent offline edits of different items: one list wins), split per item if that bites.
-  items: ShopItem[]
-  createdBy?: string
+  /** Day key "2026-w44/0" → included or not; missing = default (the next 7 days). */
+  dayChoice?: Record<string, boolean>
+  /** Item keys unchecked ("already at home"). */
+  excluded?: string[]
+  /** Item keys already handed to Bring!. */
+  sent?: string[]
+  // shortcut: each array merges as one field (concurrent offline edits: one side wins), split per item if that bites.
+  extra?: ShopItem[]
   handedOverAt?: string
   handedOverBy?: string
 }

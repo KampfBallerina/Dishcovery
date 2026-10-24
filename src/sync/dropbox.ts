@@ -67,7 +67,7 @@ export async function finishLogin() {
 /** Revokes the token at Dropbox (best effort, offline still disconnects) and forgets it locally. Dishes stay on the device. */
 export async function logout() {
   await rpc('auth/token/revoke', null).catch(() => {})
-  await db.meta.bulkDelete(['auth', 'userName', 'accountId', 'root', 'cursor', 'inviteDismissed'])
+  await db.meta.bulkDelete(['auth', 'userName', 'accountId', 'root', 'cursor', 'inviteDismissed', 'bringFile'])
 }
 
 async function token() {

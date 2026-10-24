@@ -2,199 +2,174 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getMeta, save, SHOPPING_ID, type ShoppingDraft, type ShopItem } from '../db'
 import { locale, t } from '../i18n'
-import { collect, itemLabel, itemSpec, toText } from '../logic/shopping'
-import { bringDeeplink, bringImportUrl } from '../sync/bring'
+import { afterSend, itemLabel, itemSpec, shoppingList, toText } from '../logic/shopping'
 import { addDays, isoDate, mondayOf, shiftWeek, visibleSlots, weekId } from '../logic/week'
-import { EmptyState, Icon, TopBar, toast } from './components'
+import { prepareForBring } from '../sync/bring'
+import { Chip, EmptyState, Icon, TopBar, toast } from './components'
 import { useDishes } from './data'
 
 const update = (patch: Partial<ShoppingDraft>) => save(db.misc, SHOPPING_ID, patch)
 
 export function ShoppingScreen() {
-  const draft = useLiveQuery(() => db.misc.get(SHOPPING_ID))
-  const [fresh, setFresh] = useState(false)
-  const active = draft && !draft.deleted && !fresh
-
-  return (
-    <>
-      <TopBar title={t('shopping.title')} />
-      {active ? <Draft draft={draft} onNew={() => setFresh(true)} /> : <Generator onDone={() => setFresh(false)} />}
-    </>
-  )
-}
-
-function Generator({ onDone }: { onDone: () => void }) {
-  const dishes = useDishes() ?? []
-  const byId = new Map(dishes.map((d) => [d.id, d]))
+  const draft = useLiveQuery(async () => (await db.misc.get(SHOPPING_ID)) ?? ({} as ShoppingDraft))
+  const dishes = useDishes()
   const thisWeek = weekId(new Date())
-  const ids = [thisWeek, shiftWeek(thisWeek, 1)]
-  const weeks = useLiveQuery(() => db.weeks.bulkGet(ids), [thisWeek]) ?? []
-  const today = isoDate(new Date())
+  const weekIds = [thisWeek, shiftWeek(thisWeek, 1)]
+  const weeks = useLiveQuery(() => db.weeks.bulkGet(weekIds), [thisWeek])
+  const root = useLiveQuery(async () => (await getMeta<string>('root')) ?? '')
+  const [extra, setExtra] = useState('')
+  const [link, setLink] = useState<string>()
+  const [preparing, setPreparing] = useState(false)
 
-  // Every day from today to the end of next week that has something planned; the next 7 days are preselected.
-  const days = ids.flatMap((id, w) =>
+  // Every day from today to the end of next week that has something planned; by default the next 7 days count.
+  const byId = new Map((dishes ?? []).map((d) => [d.id, d]))
+  const today = isoDate(new Date())
+  const soon = isoDate(addDays(new Date(), 7))
+  const days = weekIds.flatMap((id, w) =>
     [0, 1, 2, 3, 4, 5, 6].flatMap((d) => {
       const date = addDays(mondayOf(id), d)
-      const planned = visibleSlots(weeks[w], [d]).flatMap((k) => byId.get(weeks[w]?.[k]?.dishId ?? '') ?? [])
-      return isoDate(date) >= today && planned.length ? [{ key: `${id}/${d}`, date, planned, soon: isoDate(date) < isoDate(addDays(new Date(), 7)) }] : []
+      const planned = visibleSlots(weeks?.[w], [d]).flatMap((k) => byId.get(weeks?.[w]?.[k]?.dishId ?? '') ?? [])
+      const key = `${id}/${d}`
+      const iso = isoDate(date)
+      return iso >= today && planned.length ? [{ key, date, planned, on: draft?.dayChoice?.[key] ?? iso < soon }] : []
     }),
   )
-  const [picked, setPicked] = useState<Set<string>>()
-  const selected = picked ?? new Set(days.filter((d) => d.soon).map((d) => d.key))
+  const { open, sent } = shoppingList(days.filter((d) => d.on).flatMap((d) => d.planned), draft)
+  const needed = open.filter((i) => i.needed)
 
-  const create = async () => {
-    const items = collect(days.filter((d) => selected.has(d.key)).flatMap((d) => d.planned))
-    await update({ items, createdBy: await getMeta<string>('userName'), handedOverAt: undefined, handedOverBy: undefined, deleted: false })
-    onDone()
+  // The Bring! link is prepared in the background, so one tap opens Bring! directly (iOS needs a real link tap).
+  const neededKey = JSON.stringify(needed.map((i) => [i.name, itemSpec(i)]))
+  useEffect(() => {
+    setLink(undefined)
+    if (!root || !needed.length || !navigator.onLine) return setPreparing(false)
+    let current = true
+    setPreparing(true)
+    const timer = setTimeout(() => {
+      const name = t('shopping.bringListName', { date: new Date().toLocaleDateString(locale, { day: 'numeric', month: 'long' }) })
+      prepareForBring(needed, name, itemSpec)
+        .then((l) => current && setLink(l))
+        .catch((e) => (console.error(e), current && toast(t('shopping.bringFailed'))))
+        .finally(() => current && setPreparing(false))
+    }, 600)
+    return () => {
+      current = false
+      clearTimeout(timer)
+    }
+  }, [neededKey, root])
+
+  if (!draft || !dishes || !weeks || root === undefined) return <TopBar title={t('shopping.title')} />
+
+  const markSent = async () =>
+    update({ ...afterSend(open, [...open, ...sent], draft), handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(toText(needed))
+    } catch {
+      return toast(t('shopping.copyFailed'))
+    }
+    await markSent()
+    toast(t('shopping.copiedToast'))
   }
 
-  if (!days.length)
-    return (
-      <EmptyState icon="cart" title={t('shopping.emptyTitle')} text={t('shopping.nothingPlanned')}>
-        <a className="btn primary" href="#/woche">
-          <Icon name="week" /> {t('shopping.planWeek')}
-        </a>
-      </EmptyState>
-    )
-
-  return (
-    <div className="generator">
-      <p className="lead">{t('shopping.pickDays')}</p>
-      <ul className="day-picks">
-        {days.map((d) => (
-          <li key={d.key}>
-            <label>
-              <input type="checkbox" checked={selected.has(d.key)} onChange={() => {
-                const next = new Set(selected)
-                if (!next.delete(d.key)) next.add(d.key)
-                setPicked(next)
-              }} />
-              <span className="day-pick-date">{d.date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'numeric' })}</span>
-              <span className="day-pick-dishes">{d.planned.map((p) => p.name).join(', ')}</span>
-            </label>
-          </li>
-        ))}
-      </ul>
-      <button className="btn primary wide" onClick={create} disabled={!selected.size}>
-        <Icon name="cart" /> {t('shopping.create')}
-      </button>
-    </div>
-  )
-}
-
-function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
-  const [extra, setExtra] = useState('')
-  const done = !!draft.handedOverAt
-  const setItem = (key: string, patch: Partial<ShopItem>) => update({ items: draft.items.map((i) => (i.key === key ? { ...i, ...patch } : i)) })
+  const toggle = (i: ShopItem) =>
+    sent.includes(i)
+      ? update({ sent: (draft.sent ?? []).filter((k) => k !== i.key) })
+      : update({ excluded: i.needed ? [...(draft.excluded ?? []), i.key] : (draft.excluded ?? []).filter((k) => k !== i.key) })
 
   const add = (e: FormEvent) => {
     e.preventDefault()
     if (!extra.trim()) return
-    update({ items: [...draft.items, { key: `manuell-${crypto.randomUUID()}`, name: extra.trim(), count: 1, needed: true, manual: true }] })
+    update({ extra: [...(draft.extra ?? []), { key: `manuell-${crypto.randomUUID()}`, name: extra.trim(), count: 1, needed: true, manual: true }] })
     setExtra('')
   }
 
-  const markHandedOver = async () => {
-    if (!done) await update({ handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
-  }
+  if (!days.length && !draft.extra?.length)
+    return (
+      <>
+        <TopBar title={t('shopping.title')} />
+        <EmptyState icon="cart" title={t('shopping.emptyTitle')} text={t('shopping.nothingPlanned')}>
+          <a className="btn primary" href="#/woche">
+            <Icon name="week" /> {t('shopping.planWeek')}
+          </a>
+        </EmptyState>
+      </>
+    )
 
-  // Fallback without Dropbox: Bring!'s share extension only takes recipe links, so the list is pasted by hand.
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(toText(draft.items))
-    } catch {
-      return toast(t('shopping.copyFailed'))
-    }
-    await markHandedOver()
-    toast(t('shopping.copiedToast'))
-  }
-
-  // Two taps on purpose: the upload takes a moment, and only a real link tap reliably opens the Bring! app on iOS.
-  const root = useLiveQuery(() => getMeta<string>('root'))
-  const [bringLink, setBringLink] = useState<string>()
-  const [preparing, setPreparing] = useState(false)
-  const itemsKey = JSON.stringify(draft.items)
-  useEffect(() => setBringLink(undefined), [itemsKey])
-  const prepare = async () => {
-    setPreparing(true)
-    try {
-      const name = t('shopping.bringListName', { date: new Date().toLocaleDateString(locale, { day: 'numeric', month: 'long' }) })
-      setBringLink(bringDeeplink(await bringImportUrl(draft.items.filter((i) => i.needed), name, itemSpec)))
-    } catch (e) {
-      console.error(e)
-      toast(t(navigator.onLine ? 'shopping.bringFailed' : 'shopping.bringOffline'))
-    } finally {
-      setPreparing(false)
-    }
-  }
-
-  const needed = draft.items.filter((i) => i.needed).length
+  const row = (i: ShopItem) => (
+    <li key={i.key}>
+      <label>
+        <input type="checkbox" checked={i.needed} onChange={() => toggle(i)} />
+        <span className={i.needed ? undefined : 'struck'}>{itemLabel(i)}</span>
+      </label>
+      {i.manual && (
+        <button className="icon-btn" onClick={() => update({ extra: draft.extra!.filter((x) => x.key !== i.key) })} aria-label={t('shopping.removeItem', { name: i.name })}>
+          <Icon name="close" size={18} />
+        </button>
+      )}
+    </li>
+  )
 
   return (
-    <div className={'draft' + (done ? ' done' : '')}>
-      {done ? (
-        <div className="banner ok">
-          <Icon name="check" />
-          <p>
-            {t(draft.handedOverBy ? 'shopping.handedOverBy' : 'shopping.handedOver', {
-              name: draft.handedOverBy ?? '',
-              date: new Date(draft.handedOverAt!).toLocaleString(locale, { weekday: 'long', hour: '2-digit', minute: '2-digit' }),
-            })}
-          </p>
+    <>
+      <TopBar title={t('shopping.title')} />
+      <div className="page shopping">
+        {days.length > 0 && (
+          <div className="chips scroll" role="group" aria-label={t('shopping.days')}>
+            {days.map((d) => (
+              <Chip key={d.key} on={d.on} onClick={() => update({ dayChoice: { ...draft.dayChoice, [d.key]: !d.on } })}>
+                {d.date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric' })}
+              </Chip>
+            ))}
+          </div>
+        )}
+        <p className="lead">{t('shopping.liveHint')}</p>
 
-          <button className="btn small" onClick={() => update({ handedOverAt: undefined, handedOverBy: undefined })}>{t('shopping.undo')}</button>
-        </div>
-      ) : (
-        <p className="lead">{t('shopping.draftHint')}</p>
-      )}
-
-      <ul className="shop-list">
-        {draft.items.map((i) => (
-          <li key={i.key}>
-            <label>
-              <input type="checkbox" checked={i.needed} disabled={done} onChange={() => setItem(i.key, { needed: !i.needed })} />
-              <span className={i.needed ? undefined : 'struck'}>{itemLabel(i)}</span>
-            </label>
-          </li>
-        ))}
-      </ul>
-
-      {!done && (
+        <ul className="shop-list">{open.map(row)}</ul>
         <form className="add-item" onSubmit={add}>
           <input placeholder={t('shopping.addPlaceholder')} value={extra} onChange={(e) => setExtra(e.target.value)} aria-label={t('shopping.addPlaceholder')} />
           <button className="icon-btn" type="submit" aria-label={t('shopping.add')}><Icon name="plus" /></button>
         </form>
-      )}
 
-      <div className="draft-actions">
-        {!done && root && (
-          <>
-            {bringLink ? (
-              <a className="btn primary wide big" href={bringLink} target="_blank" rel="noreferrer" onClick={() => markHandedOver()}>
-                <Icon name="cart" /> {t('shopping.openBring')}
+        <div className="draft-actions">
+          {root ? (
+            link && !preparing ? (
+              <a className="btn primary wide big" href={link} target="_blank" rel="noreferrer" onClick={() => markSent().then(() => toast(t('shopping.sentToast')))}>
+                <Icon name="cart" /> {t('shopping.toBring', { n: needed.length })}
               </a>
             ) : (
-              <button className="btn primary wide big" onClick={prepare} disabled={!needed || preparing}>
-                <Icon name="cart" /> {t(preparing ? 'shopping.preparing' : 'shopping.toBring', { n: needed })}
+              <button className="btn primary wide big" disabled>
+                <Icon name="cart" /> {t(!needed.length ? 'shopping.nothingNew' : preparing ? 'shopping.preparing' : 'shopping.offline')}
               </button>
-            )}
-            <p className="muted small center">{t(bringLink ? 'shopping.openHint' : 'shopping.bringHint')}</p>
-            <button className="btn small" onClick={copy} disabled={!needed}>{t('shopping.copyInstead')}</button>
-          </>
-        )}
-        {!done && !root && (
-          <>
-            <button className="btn primary wide big" onClick={copy} disabled={!needed}>
-              <Icon name="cart" /> {t('shopping.copyForBring', { n: needed })}
+            )
+          ) : (
+            <button className="btn primary wide big" onClick={copy} disabled={!needed.length}>
+              <Icon name="cart" /> {t(needed.length ? 'shopping.copyForBring' : 'shopping.nothingNew', { n: needed.length })}
             </button>
-            <p className="muted small center">{t('shopping.pasteHint')}</p>
-          </>
-        )}
-        <div className="draft-secondary">
-          <button className="btn small" onClick={onNew}><Icon name="plus" size={18} /> {t('shopping.new')}</button>
-          {!done && <button className="btn small" onClick={() => confirm(t('shopping.discardConfirm')) && update({ deleted: true })}><Icon name="trash" size={18} /> {t('shopping.discard')}</button>}
+          )}
+          {root ? (
+            needed.length > 0 && <button className="btn small" onClick={copy}>{t('shopping.copyInstead')}</button>
+          ) : (
+            needed.length > 0 && <p className="muted small center">{t('shopping.pasteHint')}</p>
+          )}
+          {draft.handedOverAt && (
+            <p className="muted small center">
+              {t(draft.handedOverBy ? 'shopping.lastSentBy' : 'shopping.lastSent', {
+                name: draft.handedOverBy ?? '',
+                date: new Date(draft.handedOverAt).toLocaleString(locale, { weekday: 'long', hour: '2-digit', minute: '2-digit' }),
+              })}
+            </p>
+          )}
         </div>
+
+        {sent.length > 0 && (
+          <section className="sent">
+            <h2>{t('shopping.sentTitle')}</h2>
+            <p className="muted small">{t('shopping.sentHint')}</p>
+            <ul className="shop-list">{sent.map(row)}</ul>
+          </section>
+        )}
       </div>
-    </div>
+    </>
   )
 }

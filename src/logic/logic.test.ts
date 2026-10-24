@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Dish, Week } from '../db'
 import { merge, isAhead } from '../sync/merge'
 import { pick, reroll, suggest } from './planner'
-import { collect, toText } from './shopping'
+import { afterSend, collect, itemSpec, shoppingList, toText } from './shopping'
 import { mondayOf, openDays, shiftWeek, visibleSlots, weekId } from './week'
 
 const dish = (id: string, extra: Partial<Dish> = {}): Dish => ({
@@ -70,6 +70,22 @@ describe('shopping', () => {
       dish('a', { ingredients: [{ name: 'Hack', amount: 200, unit: 'g' }, { name: 'Zwiebel' }] }),
       dish('b', { ingredients: [{ name: 'hack', amount: 200, unit: 'g' }, { name: 'Zwiebel' }] }),
     ])
-    expect(toText(items)).toBe('Hack 400 g\nZwiebel 2×')
+    expect(toText(items)).toBe('Hack 400 g\nZwiebel')
+  })
+  it('passes a quantity only with a unit', () => {
+    const [apfel, schmand] = collect([dish('a', { ingredients: [{ name: 'Apfel', amount: 1 }, { name: 'Schmand', amount: 1, unit: 'Becher' }] })])
+    expect([itemSpec(apfel), itemSpec(schmand)]).toEqual(['', '1 Becher'])
+  })
+  it('follows the plan and remembers what was sent', () => {
+    const planned = [dish('a', { ingredients: [{ name: 'Apfel' }, { name: 'Mehl' }] })]
+    const extra = [{ key: 'm1', name: 'Kaffee', count: 1, needed: true, manual: true }]
+    let draft = { excluded: ['mehl|'], extra }
+    const first = shoppingList(planned, draft)
+    expect(first.open.filter((i) => i.needed).map((i) => i.name)).toEqual(['Apfel', 'Kaffee'])
+    const after = { ...draft, ...afterSend(first.open, [...first.open, ...first.sent], draft) }
+    const second = shoppingList([...planned, dish('b', { ingredients: [{ name: 'Milch' }] })], after)
+    expect(second.open.filter((i) => i.needed).map((i) => i.name)).toEqual(['Milch'])
+    expect(second.sent.map((i) => i.name)).toEqual(['Apfel', 'Kaffee'])
+    expect(afterSend([], [], after)).toEqual({ sent: [], excluded: [] })
   })
 })
