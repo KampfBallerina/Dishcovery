@@ -12,7 +12,6 @@ const paths = {
   minus: <path d="M5 12h14" />,
   search: <><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></>,
   heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" />,
-  share: <><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" /><path d="M16 6l-4-4-4 4M12 2v13" /></>,
   back: <path d="M15 18l-6-6 6-6" />,
   forward: <path d="M9 18l6-6-6-6" />,
   close: <path d="M18 6L6 18M6 6l12 12" />,

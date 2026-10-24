@@ -21,8 +21,12 @@ export function collect(dishes: Dish[]): ShopItem[] {
 
 export const fmtAmount = (n: number) => n.toLocaleString(locale, { maximumFractionDigits: 2 })
 
+/** Quantity part, e.g. "400 g" or "2×" (Bring! calls it "spec"). */
+export const itemSpec = (i: ShopItem) =>
+  i.amount != null ? `${fmtAmount(i.amount)}${i.unit ? ' ' + i.unit : ''}` : i.count > 1 ? `${i.count}×` : ''
+
 export function itemLabel(i: ShopItem) {
-  const qty = i.amount != null ? `${fmtAmount(i.amount)}${i.unit ? ' ' + i.unit : ''}` : i.count > 1 ? `${i.count}×` : ''
+  const qty = itemSpec(i)
   return qty ? `${i.name} ${qty}` : i.name
 }
 

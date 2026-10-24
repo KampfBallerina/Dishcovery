@@ -17,7 +17,7 @@
 | Assistent | regelbasiert, offline, direkt in der Wochenansicht (kein eigener Tab) | KI-Variante (Claude-API) wäre ein späterer optionaler Zusatz |
 | Vorrat | wird nicht gepflegt; Zutaten werden im Assistenten jedes Mal angetippt | einen Vorrat hält erfahrungsgemäß niemand aktuell |
 | Einkauf | geteilter Entwurf aus gewählten Tagen; alle können abwählen und ergänzen; eine Person übergibt ihn bewusst an Bring!, wenn der Haushalt einverstanden ist; danach als „übergeben“ markiert | Bring! (mit Alexa) bleibt die einzige echte Einkaufsliste |
-| Bring! | Übergabe per Teilen-Menü oder Zwischenablage, keine API | Bring! hat keine offizielle API; die inoffizielle bräuchte das Passwort und einen Proxy |
+| Bring! | offizieller JSON-Import von Bring!: Liste als JSON in Dropbox, öffentlicher Link, Bring!-Deeplink öffnet die App; ohne Dropbox: Kopieren und Einfügen. Details in docs/bring.md | kein Passwort, keine inoffizielle API; das Teilen-Menü nimmt nur Rezept-Links an (getestet am 24.10.2026) |
 | Sprache | Deutsch, alle Texte in `de.json`, vorbereitet für weitere Sprachen | |
 | Navigation | Tabs Woche, Gerichte, Einkauf; „Haushalt“ über das Personen-Symbol oben rechts | |
 | Haushaltsordner | wird automatisch als `/Dishcovery` angelegt, ohne Ordnerauswahl | so einfach wie möglich, keine Bedienfehler (Wunsch des Nutzers) |

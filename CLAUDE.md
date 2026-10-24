@@ -39,5 +39,6 @@ docs/              Detail-Dokumente, siehe unten
 - [docs/datenmodell.md](docs/datenmodell.md): Gerichte, Wochen, Einkaufsentwurf, Fotos
 - [docs/sync.md](docs/sync.md): Dropbox-Ordner, Merge, Konflikte, Aufräumen alter Wochen
 - [docs/planer.md](docs/planer.md): Regeln für Würfeln und Assistent
+- [docs/bring.md](docs/bring.md): Übergabe der Einkaufsliste an Bring! (JSON-Import, getestete Fakten)
 - [docs/ui.md](docs/ui.md): Design-Tokens, Teller-Prinzip, Texte
 - [docs/setup-dropbox.md](docs/setup-dropbox.md): Dropbox-App anlegen und Deployment (für Menschen)

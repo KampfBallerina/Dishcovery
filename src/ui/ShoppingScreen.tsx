@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getMeta, save, SHOPPING_ID, type ShoppingDraft, type ShopItem } from '../db'
 import { locale, t } from '../i18n'
-import { collect, itemLabel, toText } from '../logic/shopping'
+import { collect, itemLabel, itemSpec, toText } from '../logic/shopping'
+import { bringDeeplink, bringImportUrl } from '../sync/bring'
 import { addDays, isoDate, mondayOf, shiftWeek, visibleSlots, weekId } from '../logic/week'
 import { EmptyState, Icon, TopBar, toast } from './components'
 import { useDishes } from './data'
@@ -93,17 +94,38 @@ function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
     setExtra('')
   }
 
-  const handOver = async (how: 'share' | 'copy') => {
-    const text = toText(draft.items)
+  const markHandedOver = async () => {
+    if (!done) await update({ handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
+  }
+
+  // Fallback without Dropbox: Bring!'s share extension only takes recipe links, so the list is pasted by hand.
+  const copy = async () => {
     try {
-      if (how === 'share') await navigator.share({ title: t('shopping.title'), text })
-      else await navigator.clipboard.writeText(text)
-    } catch (e) {
-      if ((e as Error).name === 'AbortError') return // share sheet dismissed: nothing was handed over
-      throw e
+      await navigator.clipboard.writeText(toText(draft.items))
+    } catch {
+      return toast(t('shopping.copyFailed'))
     }
-    await update({ handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
-    toast(t(how === 'copy' ? 'shopping.copiedToast' : 'shopping.handedOverToast'))
+    await markHandedOver()
+    toast(t('shopping.copiedToast'))
+  }
+
+  // Two taps on purpose: the upload takes a moment, and only a real link tap reliably opens the Bring! app on iOS.
+  const root = useLiveQuery(() => getMeta<string>('root'))
+  const [bringLink, setBringLink] = useState<string>()
+  const [preparing, setPreparing] = useState(false)
+  const itemsKey = JSON.stringify(draft.items)
+  useEffect(() => setBringLink(undefined), [itemsKey])
+  const prepare = async () => {
+    setPreparing(true)
+    try {
+      const name = t('shopping.bringListName', { date: new Date().toLocaleDateString(locale, { day: 'numeric', month: 'long' }) })
+      setBringLink(bringDeeplink(await bringImportUrl(draft.items.filter((i) => i.needed), name, itemSpec)))
+    } catch (e) {
+      console.error(e)
+      toast(t(navigator.onLine ? 'shopping.bringFailed' : 'shopping.bringOffline'))
+    } finally {
+      setPreparing(false)
+    }
   }
 
   const needed = draft.items.filter((i) => i.needed).length
@@ -119,6 +141,7 @@ function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
               date: new Date(draft.handedOverAt!).toLocaleString(locale, { weekday: 'long', hour: '2-digit', minute: '2-digit' }),
             })}
           </p>
+
           <button className="btn small" onClick={() => update({ handedOverAt: undefined, handedOverBy: undefined })}>{t('shopping.undo')}</button>
         </div>
       ) : (
@@ -144,16 +167,27 @@ function Draft({ draft, onNew }: { draft: ShoppingDraft; onNew: () => void }) {
       )}
 
       <div className="draft-actions">
-        {!done && (
+        {!done && root && (
           <>
-            {'share' in navigator && (
-              <button className="btn primary wide" onClick={() => handOver('share')} disabled={!needed}>
-                <Icon name="share" /> {t('shopping.toBring', { n: needed })}
+            {bringLink ? (
+              <a className="btn primary wide big" href={bringLink} target="_blank" rel="noreferrer" onClick={() => markHandedOver()}>
+                <Icon name="cart" /> {t('shopping.openBring')}
+              </a>
+            ) : (
+              <button className="btn primary wide big" onClick={prepare} disabled={!needed || preparing}>
+                <Icon name="cart" /> {t(preparing ? 'shopping.preparing' : 'shopping.toBring', { n: needed })}
               </button>
             )}
-            <button className="btn wide" onClick={() => handOver('copy')} disabled={!needed}>
-              {t('shopping.copy')}
+            <p className="muted small center">{t(bringLink ? 'shopping.openHint' : 'shopping.bringHint')}</p>
+            <button className="btn small" onClick={copy} disabled={!needed}>{t('shopping.copyInstead')}</button>
+          </>
+        )}
+        {!done && !root && (
+          <>
+            <button className="btn primary wide big" onClick={copy} disabled={!needed}>
+              <Icon name="cart" /> {t('shopping.copyForBring', { n: needed })}
             </button>
+            <p className="muted small center">{t('shopping.pasteHint')}</p>
           </>
         )}
         <div className="draft-secondary">

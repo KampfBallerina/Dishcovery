@@ -372,4 +372,4 @@ input[type='checkbox'] { width: 24px; height: 24px; accent-color: var(--accent);
 .welcome-actions { display: flex; flex-direction: column; gap: 10px; }
 .welcome-actions .btn { width: 100%; }
 .welcome-actions .btn.ghost-light { background: transparent; border-color: rgba(238, 239, 234, .4); color: #eeefea; }
-.welcome-note { font-size: 14px; opacity: .75; margin: 6px 0 0; text-align: center; }
+.welcome-note { font-size: 14px; opacity: .75; margin: 6px 0 0; text-align: center; }.center { text-align: center; }
