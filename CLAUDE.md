@@ -5,7 +5,7 @@ Dishcovery ist eine Haushalts-App fürs iPhone, gebaut als PWA: gemeinsame Geric
 ## Stack und Befehle
 
 - Vite + React 19 + TypeScript, Dexie (IndexedDB), vite-plugin-pwa, Vitest
-- `npm run dev`: Dev-Server unter `http://localhost:5173/dishcovery/`
+- `npm run dev`: Dev-Server unter `http://localhost:5173/Dishcovery/`
 - `npm test`: Logik-Tests (`src/logic/logic.test.ts`)
 - `npm run build`: Typecheck und Build nach `dist/`
 - Deployment: Ein Push auf `main` baut und veröffentlicht die App über GitHub Actions auf GitHub Pages (`.github/workflows/deploy.yml`).

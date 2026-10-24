@@ -3,9 +3,9 @@
 ## 1. Repo auf GitHub veröffentlichen
 
 1. Öffne in VS Code die Quellcodeverwaltung und wähle **„Publish to GitHub“**.
-2. Als Name `dishcovery` eingeben und **public** wählen.
+2. Als Name `Dishcovery` eingeben und **public** wählen.
 3. Auf GitHub unter **Settings → Pages → Source** die Option **„GitHub Actions“** wählen.
-4. Nach dem ersten Workflow-Lauf ist die App erreichbar unter `https://<dein-github-name>.github.io/dishcovery/`.
+4. Nach dem ersten Workflow-Lauf ist die App erreichbar unter `https://kampfballerina.github.io/Dishcovery/`.
 
 ## 2. Dropbox-App anlegen
 
@@ -19,8 +19,8 @@
    - `files.content.write`
    - `account_info.read`
 5. Im Tab **Settings** unter **OAuth 2 → Redirect URIs** beide Adressen hinzufügen:
-   - `https://<dein-github-name>.github.io/dishcovery/`
-   - `http://localhost:5173/dishcovery/` (für die Entwicklung)
+   - `https://kampfballerina.github.io/Dishcovery/`
+   - `http://localhost:5173/Dishcovery/` (für die Entwicklung)
 6. Bei **„Allow public clients (Implicit Grant & PKCE)“** muss **Allow** stehen.
 7. Den **App key** kopieren und in `src/config.ts` eintragen: `export const DROPBOX_APP_KEY = '…'`. Danach committen und pushen.
 

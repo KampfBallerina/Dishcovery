@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// GitHub Pages serves the repo under /dishcovery/
+// GitHub Pages serves the repo under /Dishcovery/
 export default defineConfig({
-  base: '/dishcovery/',
+  base: '/Dishcovery/',
   plugins: [
     react(),
     VitePWA({

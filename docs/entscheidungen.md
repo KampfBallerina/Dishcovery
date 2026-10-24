@@ -3,7 +3,7 @@
 | Thema | Entscheidung | Warum |
 |---|---|---|
 | Plattform | PWA, „Zum Home-Bildschirm“ auf dem iPhone, kein App Store | genügt, kostet nichts |
-| Hosting | GitHub Pages aus öffentlichem Repo `dishcovery` | kostenlos; im Repo liegen keine Daten |
+| Hosting | GitHub Pages aus öffentlichem Repo `Dishcovery` | kostenlos; im Repo liegen keine Daten |
 | Sync | geteilter Dropbox-Ordner, jede Person mit eigenem Konto; kein eigener Server | Nutzer kennt Dropbox und hat es schon genutzt |
 | Haushalte | ein Haushalt pro Ordner, alle sind gleichberechtigt | keine Rollen nötig |
 | Konflikte | spätere Änderung gewinnt, pro Feld per Zeitstempel | einfach zu verstehen, Konflikte sind selten |
