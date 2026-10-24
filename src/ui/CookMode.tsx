@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { t } from '../i18n'
+import { goBack } from './App'
 import { Icon } from './components'
 import { scaled } from './DishDetail'
 
-export function CookMode({ id }: { id: string }) {
+export function CookMode({ id, servings }: { id: string; servings?: number }) {
   const dish = useLiveQuery(() => db.dishes.get(id), [id])
   const [step, setStep] = useState(0)
   const [showIngredients, setShowIngredients] = useState(false)
@@ -26,11 +27,12 @@ export function CookMode({ id }: { id: string }) {
   if (!dish) return null
   const steps = dish.steps
   const last = step >= steps.length - 1
+  const factor = (servings ?? dish.servings) / (dish.servings || 1)
 
   return (
     <div className="cook">
       <header className="cook-head">
-        <a className="icon-btn" href={`#/gerichte/${id}`} aria-label={t('cook.exit')}><Icon name="close" /></a>
+        <a className="icon-btn" href={`#/gerichte/${id}`} onClick={goBack} aria-label={t('cook.exit')}><Icon name="close" /></a>
         <span className="cook-title">{dish.name}</span>
         <button className="btn small" onClick={() => setShowIngredients(!showIngredients)} aria-expanded={showIngredients}>
           {t('dishes.ingredients')}
@@ -40,7 +42,7 @@ export function CookMode({ id }: { id: string }) {
       {showIngredients ? (
         <ul className="ingredients cook-ingredients">
           {dish.ingredients.map((i, k) => (
-            <li key={k}><span className="qty">{scaled(i, 1)}</span><span>{i.name}</span></li>
+            <li key={k}><span className="qty">{scaled(i, factor)}</span><span>{i.name}</span></li>
           ))}
         </ul>
       ) : (
@@ -56,7 +58,7 @@ export function CookMode({ id }: { id: string }) {
       <footer className="cook-nav">
         <button className="btn big" onClick={() => setStep(step - 1)} disabled={step === 0}><Icon name="back" /> {t('cook.back')}</button>
         {last ? (
-          <a className="btn big primary" href={`#/gerichte/${id}`}><Icon name="check" /> {t('cook.done')}</a>
+          <a className="btn big primary" href={`#/gerichte/${id}`} onClick={goBack}><Icon name="check" /> {t('cook.done')}</a>
         ) : (
           <button className="btn big primary" onClick={() => setStep(step + 1)}>{t('cook.next')} <Icon name="forward" /></button>
         )}

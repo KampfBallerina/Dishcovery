@@ -3,6 +3,7 @@ import type { Dish } from '../db'
 import { t } from '../i18n'
 import { usePhotoUrl } from '../photo'
 import { useSyncStatus } from '../sync/sync'
+import { goBack } from './App'
 
 const paths = {
   dice: <><rect x="3.5" y="3.5" width="17" height="17" rx="4" /><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" /><circle cx="12" cy="12" r="1.2" fill="currentColor" /><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" /></>,
@@ -92,7 +93,7 @@ export function TopBar({ title, back, children }: { title: string; back?: string
   return (
     <header className={'topbar' + (back ? ' sub' : '')}>
       {back && (
-        <a className="icon-btn" href={back} aria-label={t('common.back')}>
+        <a className="icon-btn" href={back} onClick={goBack} aria-label={t('common.back')}>
           <Icon name="back" />
         </a>
       )}
@@ -116,24 +117,33 @@ export function HouseholdLink({ light }: { light?: boolean }) {
   )
 }
 
-let toastListener: (msg: string) => void = () => {}
-/** Short confirmation at the bottom, e.g. "Eingeladen". */
-export const toast = (msg: string) => toastListener(msg)
+interface ToastAction { label: string; run: () => void }
+let toastListener: (msg: string, action?: ToastAction) => void = () => {}
+/** Short confirmation at the bottom, e.g. "Eingeladen"; optionally with one action like "Rückgängig". */
+export const toast = (msg: string, action?: ToastAction) => toastListener(msg, action)
 
 export function Toaster() {
-  const [msg, setMsg] = useState<string>()
+  const [current, setCurrent] = useState<{ msg: string; action?: ToastAction }>()
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>
-    toastListener = (m) => {
-      setMsg(m)
+    toastListener = (msg, action) => {
+      setCurrent({ msg, action })
       clearTimeout(timer)
-      timer = setTimeout(() => setMsg(undefined), 2600)
+      // An action needs time to be read and reached.
+      timer = setTimeout(() => setCurrent(undefined), action ? 5000 : 2600)
     }
     return () => clearTimeout(timer)
   }, [])
   return (
     <div className="toast-slot" role="status" aria-live="polite">
-      {msg && <div className="toast" key={msg}><Icon name="check" size={18} /> {msg}</div>}
+      {current && (
+        <div className="toast" key={current.msg}>
+          <Icon name="check" size={18} /> {current.msg}
+          {current.action && (
+            <button className="toast-action" onClick={() => (current.action!.run(), setCurrent(undefined))}>{current.action.label}</button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

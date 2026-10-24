@@ -4,7 +4,7 @@ import { db, save, type SlotKey, type Week } from '../db'
 import { locale, t } from '../i18n'
 import { reroll } from '../logic/planner'
 import { addDays, dishIdsOf, isoDate, mondayOf, openDays, shiftWeek, slotKey, visibleSlots, weekId } from '../logic/week'
-import { HouseholdLink, Icon, Plate } from './components'
+import { HouseholdLink, Icon, Plate, toast } from './components'
 import { SlotSheet } from './SlotSheet'
 import { useDishes } from './data'
 
@@ -32,7 +32,12 @@ export function WeekScreen() {
   const recent = new Set(dishIdsOf(prev))
   const roll = (keys: SlotKey[]) => {
     const patch = reroll(week, keys, visibleSlots(week), dishes, recent)
-    if (Object.keys(patch).length) save(db.weeks, id, patch as Partial<Week>)
+    const changed = Object.keys(patch) as SlotKey[]
+    if (!changed.length) return
+    // Never-touched dinners are undefined; an empty slot is the same thing for the plan.
+    const before = Object.fromEntries(changed.map((k) => [k, week?.[k] ?? { dishId: null, locked: false }]))
+    save(db.weeks, id, patch as Partial<Week>)
+    toast(t('week.rolled'), { label: t('common.undo'), run: () => save(db.weeks, id, before as Partial<Week>) })
   }
 
   // The assistant fills the first empty slot from today on, else the next dinner.
@@ -124,7 +129,8 @@ export function WeekScreen() {
               )}
             </li>
           )
-        })}      </ol>
+        })}
+      </ol>
 
       {target && (
         <SlotSheet

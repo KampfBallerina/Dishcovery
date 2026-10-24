@@ -112,12 +112,28 @@ function Assistant({ dishes, onPick }: { dishes: Dish[]; onPick: (d: Dish) => vo
   const lastEaten = useLastEaten()
   const ingredients = knownIngredients(dishes)
   const shown = q ? ingredients.filter((i) => i.toLowerCase().includes(q.toLowerCase())) : allIngredients ? ingredients : ingredients.slice(0, 16)
-  const results = suggest(dishes, a, lastEaten).slice(0, 6)
+  // Results sit above the questions, so every tap shows its effect; three keep the questions in view.
+  const results = suggest(dishes, a, lastEaten).slice(0, 3)
   const toggle = <K extends keyof typeof choices>(k: K, v: Answers[K]) => setA({ ...a, [k]: a[k] === v ? undefined : v })
   const have = new Set(a.have.map((h) => h.toLowerCase()))
 
   return (
     <div className="assistant">
+      <h3 className="assistant-result">{t('assistant.result')}</h3>
+      <div className="assistant-results">
+        {results.length ? (
+          <DishList
+            dishes={results}
+            onPick={onPick}
+            note={(d) => {
+              const n = d.ingredients.filter((i) => have.has(i.name.toLowerCase())).length
+              return have.size && d.ingredients.length ? t('assistant.matches', { n, total: d.ingredients.length }) : d.minutes ? t('dishes.minutes', { n: d.minutes }) : ''
+            }}
+          />
+        ) : (
+          <p className="muted">{t('assistant.nothing')}</p>
+        )}
+      </div>
       <fieldset>
         <legend>{t('assistant.have')}</legend>
         <input type="search" className="mini-search" placeholder={t('assistant.findIngredient')} value={q} onChange={(e) => setQ(e.target.value)} aria-label={t('assistant.findIngredient')} />
@@ -144,19 +160,6 @@ function Assistant({ dishes, onPick }: { dishes: Dish[]; onPick: (d: Dish) => vo
           </div>
         </fieldset>
       ))}
-      <h3 className="assistant-result">{t('assistant.result')}</h3>
-      {results.length ? (
-        <DishList
-          dishes={results}
-          onPick={onPick}
-          note={(d) => {
-            const n = d.ingredients.filter((i) => have.has(i.name.toLowerCase())).length
-            return have.size && d.ingredients.length ? t('assistant.matches', { n, total: d.ingredients.length }) : d.minutes ? t('dishes.minutes', { n: d.minutes }) : ''
-          }}
-        />
-      ) : (
-        <p className="muted">{t('assistant.nothing')}</p>
-      )}
     </div>
   )
 }

@@ -32,20 +32,8 @@ export function itemLabel(i: ShopItem) {
 /** One line per item, the format Bring! picks up when pasted. */
 export const toText = (items: ShopItem[]) => items.filter((i) => i.needed).map(itemLabel).join('\n')
 
-/**
- * The list follows the week plan live; the draft only stores what people changed: unchecked items,
- * own items and what was already sent to Bring!.
- */
-export function shoppingList(planned: Dish[], draft: Pick<ShoppingDraft, 'excluded' | 'sent' | 'extra'> = {}) {
+/** The list follows the week plan live; the draft only stores what people changed: unchecked and own items. */
+export function shoppingList(planned: Dish[], draft: Pick<ShoppingDraft, 'excluded' | 'extra'> = {}) {
   const excluded = new Set(draft.excluded)
-  const sent = new Set(draft.sent)
-  const items = [...collect(planned), ...(draft.extra ?? [])].map((i) => ({ ...i, needed: !excluded.has(i.key) && !sent.has(i.key) }))
-  return { open: items.filter((i) => !sent.has(i.key)), sent: items.filter((i) => sent.has(i.key)) }
-}
-
-/** After a hand-over: what was sent joins `sent`; keys of items no longer on the list are dropped. */
-export function afterSend(open: ShopItem[], all: ShopItem[], draft: Pick<ShoppingDraft, 'excluded' | 'sent'>) {
-  const keys = new Set(all.map((i) => i.key))
-  const sent = new Set([...(draft.sent ?? []), ...open.filter((i) => i.needed).map((i) => i.key)])
-  return { sent: [...sent].filter((k) => keys.has(k)), excluded: (draft.excluded ?? []).filter((k) => keys.has(k)) }
+  return [...collect(planned), ...(draft.extra ?? [])].map((i) => ({ ...i, needed: !excluded.has(i.key) }))
 }

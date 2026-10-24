@@ -9,7 +9,8 @@
     "close": "Schließen",
     "back": "Zurück",
     "edit": "Bearbeiten",
-    "save": "Speichern"
+    "save": "Speichern",
+    "undo": "Rückgängig"
   },
   "meal": {
     "mittag": "Mittag",
@@ -26,7 +27,8 @@
     "rollDay": "{day} neu würfeln",
     "open": "Noch offen",
     "nothing": "Nichts geplant",
-    "noDishes": "Leg zuerst ein paar Gerichte an, dann kann geplant und gewürfelt werden."
+    "noDishes": "Leg zuerst ein paar Gerichte an, dann kann geplant und gewürfelt werden.",
+    "rolled": "Neu gewürfelt"
   },
   "slot": {
     "roll": "Würfeln",
@@ -66,7 +68,7 @@
     "noMatch": "Kein Gericht passt zur Suche.",
     "favorites": "Favoriten",
     "favorite": "Favorit",
-    "longAgo": "Lange nicht gegessen",
+    "longAgo": "Länger her zuerst",
     "never": "Noch nie geplant",
     "weeksAgo": "Seit {n} Wochen nicht gegessen",
     "minutes": "{n} Min.",
@@ -81,7 +83,10 @@
     "steps": "Zubereitung",
     "notes": "Notizen",
     "edited": "Zuletzt geändert am {date}",
-    "editedBy": "Zuletzt geändert von {name} am {date}"
+    "editedBy": "Zuletzt geändert von {name} am {date}",
+    "plan": "Einplanen",
+    "planTitle": "{name} einplanen",
+    "planned": "Für {slot} eingeplant"
   },
   "editor": {
     "new": "Neues Gericht",
@@ -101,7 +106,8 @@
     "video": "Videolink",
     "source": "Rezept-Quelle",
     "delete": "Gericht löschen",
-    "deleteConfirm": "„{name}“ für den ganzen Haushalt löschen?"
+    "deleteConfirm": "„{name}“ für den ganzen Haushalt löschen?",
+    "discardConfirm": "Deine Änderungen sind noch nicht gespeichert. Verwerfen?"
   },
   "cook": {
     "start": "Kochen",
@@ -119,7 +125,6 @@
     "addPlaceholder": "Weiteren Artikel hinzufügen",
     "add": "Hinzufügen",
     "toBring": "{n} Artikel an Bring! senden",
-    "preparing": "Wird vorbereitet …",
     "copyInstead": "Stattdessen kopieren",
     "copyForBring": "{n} Artikel für Bring! kopieren",
     "pasteHint": "Danach Bring! öffnen, lange ins Eingabefeld tippen und „Einfügen“ wählen.",
@@ -130,13 +135,11 @@
     "days": "Einkaufen für",
     "liveHint": "Die Liste folgt automatisch eurem Wochenplan. Wählt ab, was schon da ist.",
     "removeItem": "{name} entfernen",
-    "nothingNew": "Nichts Neues für Bring!",
     "offline": "Für Bring! braucht es Internet",
     "sentToast": "An Bring! geschickt",
     "lastSent": "Zuletzt am {date} an Bring! geschickt",
     "lastSentBy": "{name} hat zuletzt am {date} an Bring! geschickt",
-    "sentTitle": "Schon bei Bring!",
-    "sentHint": "Anhaken, um einen Artikel noch einmal zu schicken."
+    "nothingChecked": "Nichts angehakt"
   },
   "welcome": {
     "text": "Eure Gerichte, euer Wochenplan, eure Einkaufsliste. Für alle im Haushalt, auch ohne Internet.",

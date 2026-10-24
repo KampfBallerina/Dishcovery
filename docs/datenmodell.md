@@ -49,10 +49,9 @@ Die Liste selbst wird **live aus dem Wochenplan berechnet** (`shoppingList()` in
 
 - `dayChoice`: Tag (`"2026-w44/0"`) → mit oder ohne; fehlt der Eintrag, zählen die nächsten 7 Tage
 - `excluded`: abgewählte Artikel-Schlüssel (`name|einheit`), also „schon da“
-- `sent`: schon an Bring! geschickte Schlüssel. Sie erscheinen unter „Schon bei Bring!“ und werden nicht erneut geschickt; `afterSend()` entfernt Schlüssel, die nicht mehr auf der Liste stehen.
 - `extra`: eigene Artikel
 - `handedOverAt`, `handedOverBy`: wann und von wem zuletzt geschickt
 
-Ältere Felder (`items`, `deleted`, `createdBy`) aus der ersten Version werden ignoriert.
+Nach dem Senden an Bring! bleibt die Liste unverändert; es wird nur `handedOverAt/By` gesetzt, weil auch andere etwas in Bring! eintragen. Ältere Felder (`items`, `deleted`, `createdBy`, `sent`) werden ignoriert.
 
-shortcut: Jedes Array wird als ein Feld gemergt. Ändern zwei Personen offline gleichzeitig, gewinnt eine Seite. Auf Felder pro Artikel umbauen, falls das stört. Ein schon gesendeter Schlüssel bleibt „gesendet“, auch wenn später mehr Menge dazukommt.
+shortcut: Jedes Array wird als ein Feld gemergt. Ändern zwei Personen offline gleichzeitig, gewinnt eine Seite. Auf Felder pro Artikel umbauen, falls das stört.

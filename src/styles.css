@@ -4,6 +4,7 @@
   --accent-text: #8a5600; /* Marigold darkened for AA text on Fog */
   --on-accent: #23241f; /* ink on Marigold; white would fail contrast */
   --basil: #3f7a3c;
+  --danger: #b3261e; /* only for destructive actions */
   --ink: #23241f;
   --muted: #5e615a;
   --line: #d6d8d1;
@@ -22,6 +23,7 @@
   :root {
     --accent-text: #fbb53f;
     --basil: #82c277;
+    --danger: #f2b8b5;
     --ink: #eeefea;
     --muted: #a3a69e;
     --line: #393b36;
@@ -80,7 +82,7 @@ button, input, textarea { font: inherit; color: inherit; }
 }
 .btn:disabled { opacity: .45; cursor: default; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.btn.danger { color: var(--accent-text); }
+.btn.danger { color: var(--danger); }
 .btn.small { min-height: 36px; padding: 0 14px; font-size: 15px; }
 .btn.big { min-height: 56px; font-size: 18px; flex: 1; }
 .btn.wide { width: 100%; }
@@ -94,6 +96,11 @@ button, input, textarea { font: inherit; color: inherit; }
   width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; color: var(--ink); cursor: pointer;
 }
 .icon-btn:disabled { opacity: .35; }
+/* Small controls keep their look but get a 44 px hit area. */
+.btn.small, .chip, .add-lunch { position: relative; }
+.btn.small::after, .chip::after { content: ""; position: absolute; inset: -4px; }
+.add-lunch::after { content: ""; position: absolute; inset: -8px; }
+.ing-row .icon-btn::after { content: ""; position: absolute; inset: 0 -4px; }
 .icon-btn .dot { position: absolute; top: 9px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
 .icon-btn.on-accent { color: var(--on-accent); }
 .icon-btn.on-accent .dot { background: var(--on-accent); border-color: var(--accent); }
@@ -112,7 +119,7 @@ button, input, textarea { font: inherit; color: inherit; }
 .plate.locked { box-shadow: 0 0 0 calc(var(--s) * .06) var(--basil); }
 .plate-lock {
   position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center;
-  width: 22px; height: 22px; border-radius: 50%; background: var(--basil); color: #fff;
+  width: 22px; height: 22px; border-radius: 50%; background: var(--basil); color: var(--bg);
 }
 
 /* Week */
@@ -166,7 +173,7 @@ a.slot { color: inherit; text-decoration: none; }
   width: 100%; max-width: 640px; max-height: 90dvh; margin: auto auto 0; padding: 0;
   border: 0; border-radius: 24px 24px 0 0; background: var(--bg); color: var(--ink);
 }
-.sheet::backdrop { background: rgba(20, 14, 12, .45); }
+.sheet::backdrop { background: rgba(28, 29, 26, .45); }
 .sheet[open] { animation: rise .22s ease-out; }
 @keyframes rise { from { transform: translateY(40px); opacity: 0; } }
 .sheet-inner { padding: 8px var(--gutter) calc(24px + env(safe-area-inset-bottom)); }
@@ -201,6 +208,8 @@ a.slot { color: inherit; text-decoration: none; }
 .assistant legend { font: 650 18px var(--display); margin-bottom: 8px; }
 .mini-search { width: 100%; min-height: 40px; padding: 0 14px; border: 1.5px solid var(--line); border-radius: 999px; background: var(--surface); margin-bottom: 8px; }
 .assistant-result { font-size: 22px; margin: 6px 0 4px; color: var(--accent-text); }
+/* Room for three results, so the questions below do not jump while answering. */
+.assistant-results { min-height: 195px; margin-bottom: 18px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); }
@@ -220,7 +229,8 @@ a.slot { color: inherit; text-decoration: none; }
 }
 .topbar h1 { flex: 1; font-size: 34px; font-weight: 750; letter-spacing: -.015em; }
 .topbar.sub { padding-left: 6px; padding-top: calc(env(safe-area-inset-top) + 6px); }
-.topbar.sub h1 { font-size: 20px; font-weight: 650; }
+.topbar.sub h1 { font-size: 20px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; transition: opacity .15s; }
+.detail:not(.title-shown) .topbar h1 { opacity: 0; }
 .topbar-actions { display: flex; }
 
 /* Dishes */
@@ -237,7 +247,7 @@ a.slot { color: inherit; text-decoration: none; }
 .empty-state .btn { margin-top: 10px; }
 .empty-plate { --s: 132px; color: var(--accent-text); }
 .empty-state p { color: var(--muted); max-width: 30ch; margin: 0; }
-.empty-hint { padding: 16px; color: var(--muted); }
+.empty-hint { padding: 16px var(--gutter); color: var(--muted); }
 
 /* Detail */
 .detail-hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 20px 20px 20px; }
@@ -331,8 +341,9 @@ input[type='checkbox'] { width: 24px; height: 24px; accent-color: var(--accent);
 .toast {
   display: inline-flex; align-items: center; gap: 8px; max-width: 100%;
   padding: 12px 18px; border-radius: 999px; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 15px;
-  animation: rise .2s ease-out;
+  animation: rise .2s ease-out; pointer-events: auto;
 }
+.toast-action { margin-left: 6px; min-height: 36px; padding: 0 6px; border: 0; background: none; color: inherit; text-decoration: underline; font-weight: 700; cursor: pointer; }
 
 /* Household */
 .group { margin: 8px 0 30px; }
@@ -368,10 +379,8 @@ input[type='checkbox'] { width: 24px; height: 24px; accent-color: var(--accent);
 .welcome-actions { display: flex; flex-direction: column; gap: 10px; }
 .welcome-actions .btn { width: 100%; }
 .welcome-actions .btn.ghost-light { background: transparent; border-color: rgba(238, 239, 234, .4); color: #eeefea; }
-.welcome-note { font-size: 14px; opacity: .75; margin: 6px 0 0; text-align: center; }.center { text-align: center; }
+.welcome-note { font-size: 14px; opacity: .75; margin: 6px 0 0; text-align: center; }
+.center { text-align: center; }
 .shop-list li { display: flex; align-items: center; gap: 4px; border-bottom: 1px solid var(--line); }
 .shop-list li label { flex: 1; border-bottom: 0; }
 .shopping .chips.scroll { margin-top: 4px; margin-bottom: 4px; }
-.sent { margin-top: 32px; }
-.sent h2 { font-size: 20px; margin-bottom: 2px; }
-.sent .shop-list { opacity: .75; }

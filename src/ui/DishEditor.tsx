@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { db, getMeta, save, type Dish, type Ingredient } from '../db'
 import { t } from '../i18n'
 import { addPhoto } from '../photo'
@@ -42,13 +42,35 @@ const url = (s: string) => (/^https?:\/\/\S+$/i.test(s.trim()) ? s.trim() : unde
 
 export function DishEditor({ id }: { id?: string }) {
   const [form, setForm] = useState<Form>()
+  const [initial, setInitial] = useState<string>()
   const [tagInput, setTagInput] = useState('')
   const all = useDishes() ?? []
 
   useEffect(() => {
-    if (id) db.dishes.get(id).then((d) => setForm(toForm(d)))
-    else setForm(toForm())
+    const load = (f: Form) => (setForm(f), setInitial(JSON.stringify(f)))
+    if (id) db.dishes.get(id).then((d) => load(toForm(d)))
+    else load(toForm())
   }, [id])
+
+  // Leaving with unsaved changes asks first: back, tabs and every other in-app link.
+  // shortcut: the iOS swipe-back gesture can't be stopped and still discards, add a local draft if that bites.
+  const dirty = useRef(false)
+  dirty.current = !!form && JSON.stringify(form) !== initial
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (dirty.current && (e.target as Element).closest?.('a[href^="#"]') && !confirm(t('editor.discardConfirm'))) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+    const onUnload = (e: BeforeUnloadEvent) => dirty.current && e.preventDefault()
+    document.addEventListener('click', onClick, true)
+    addEventListener('beforeunload', onUnload)
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      removeEventListener('beforeunload', onUnload)
+    }
+  }, [])
   if (!form) return null
 
   const set = (patch: Partial<Form>) => setForm({ ...form, ...patch })
@@ -84,13 +106,16 @@ export function DishEditor({ id }: { id?: string }) {
     }
     if (!id) patch.favorite = false
     await save(db.dishes, dishId, patch)
-    go(`/gerichte/${dishId}`)
+    dirty.current = false
+    // Replace the editor in history, so "back" on the dish skips the finished form.
+    go(`/gerichte/${dishId}`, true)
   }
 
   const remove = async () => {
     if (!id || !confirm(t('editor.deleteConfirm', { name: form.name }))) return
     await save(db.dishes, id, { deleted: true })
-    go('/gerichte')
+    dirty.current = false
+    go('/gerichte', true)
   }
 
   const ingredientNames = knownIngredients(all)

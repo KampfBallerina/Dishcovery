@@ -61,8 +61,6 @@ export interface ShoppingDraft extends Synced {
   dayChoice?: Record<string, boolean>
   /** Item keys unchecked ("already at home"). */
   excluded?: string[]
-  /** Item keys already handed to Bring!. */
-  sent?: string[]
   // shortcut: each array merges as one field (concurrent offline edits: one side wins), split per item if that bites.
   extra?: ShopItem[]
   handedOverAt?: string

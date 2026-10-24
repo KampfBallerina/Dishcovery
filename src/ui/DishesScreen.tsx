@@ -66,7 +66,8 @@ export function DishesScreen() {
                         {d.favorite && <span className="fav" aria-label={t('dishes.favorite')}><Icon name="heart" size={14} /></span>}
                       </span>
                       {meta && <small>{meta}</small>}
-                      {(weeks === undefined || weeks >= 6) && (
+                      {/* "Never planned" would mark every new dish, so it only shows while sorting by it. */}
+                      {(weeks === undefined ? longAgo : weeks >= 6) && (
                         <small className="long-ago">{weeks === undefined ? t('dishes.never') : t('dishes.weeksAgo', { n: weeks })}</small>
                       )}
                     </span>

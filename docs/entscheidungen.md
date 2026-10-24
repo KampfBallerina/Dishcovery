@@ -16,7 +16,7 @@
 | Manuelle Wahl | ein von Hand gewähltes Gericht wird automatisch festgelegt | „bestimmte Gerichte vorher festlegen“ |
 | Assistent | regelbasiert, offline, direkt in der Wochenansicht (kein eigener Tab) | KI-Variante (Claude-API) wäre ein späterer optionaler Zusatz |
 | Vorrat | wird nicht gepflegt; Zutaten werden im Assistenten jedes Mal angetippt | einen Vorrat hält erfahrungsgemäß niemand aktuell |
-| Einkauf | Liste folgt live dem Wochenplan (Tage wählbar, Standard: nächste 7 Tage); abwählen, eigene Artikel; ein Tipp schickt an Bring!; Geschicktes steht unter „Schon bei Bring!“. Kein Rückgängig, kein manueller Entwurf | Wunsch des Nutzers: immer aktuell, so wenige Klicks wie möglich |
+| Einkauf | Liste folgt live dem Wochenplan (Tage wählbar, Standard: nächste 7 Tage); abwählen, eigene Artikel; ein Tipp schickt an Bring!; danach bleibt die Liste unverändert (nichts wird automatisch abgehakt). Kein Rückgängig, kein manueller Entwurf | Wunsch des Nutzers: immer aktuell, wenige Klicks; mehrere Personen tragen in Bring! ein, daher jederzeit erneut senden können |
 | Bring! | offizieller JSON-Import von Bring!: Liste als JSON in Dropbox, öffentlicher Link, Bring!-Deeplink öffnet die App; ohne Dropbox: Kopieren und Einfügen. Details in docs/bring.md | kein Passwort, keine inoffizielle API; das Teilen-Menü nimmt nur Rezept-Links an (getestet am 24.10.2026) |
 | Sprache | Deutsch, alle Texte in `de.json`, vorbereitet für weitere Sprachen | |
 | Navigation | Tabs Woche, Gerichte, Einkauf; „Haushalt“ über das Personen-Symbol oben rechts | |

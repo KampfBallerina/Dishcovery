@@ -12,7 +12,7 @@ https://sites.google.com/getbring.com/bring-import-dev-guide/web-to-app-integrat
 2. Daraus baut `bringDeeplink()` direkt Bring!s App-Link: `https://deeplink.getbring.com/import?type=RECIPE&src=<base64 der Parser-URL>`.
    - Die Parser-URL lautet `https://api.getbring.com/rest/bringrecipes/parser?url=<datei>&baseQuantity=1&requestedQuantity=1`.
    - `deeplink.getbring.com/*` ist laut seiner `apple-app-site-association` ein **Universal Link** der Bring!-App. iOS öffnet die App also direkt, ohne die Weiterleitung über `api.getbring.com` und `onelink.me`. Mit dieser Weiterleitung blieb die PWA vorher auf einer Webseite mit „X“ hängen.
-3. **Ein Tipp** auf „{n} Artikel an Bring! senden“ ist ein echter Link (`target=_blank`) und öffnet Bring!. Gleichzeitig wandern die gesendeten Artikel in `sent`.
+3. **Ein Tipp** auf „{n} Artikel an Bring! senden“ ist ein echter Link (`target=_blank`) und öffnet Bring!. Die Liste bleibt danach unverändert, nur „zuletzt geschickt von …“ wird vermerkt.
 
 Ohne Dropbox gibt es „Für Bring! kopieren“ (eine Zeile pro Artikel, in Bring! einfügen).
 

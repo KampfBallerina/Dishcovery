@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react'
+﻿import { useEffect, useState, type FormEvent } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, getMeta, save, SHOPPING_ID, type ShoppingDraft, type ShopItem } from '../db'
 import { locale, t } from '../i18n'
-import { afterSend, itemLabel, itemSpec, shoppingList, toText } from '../logic/shopping'
+import { itemLabel, itemSpec, shoppingList, toText } from '../logic/shopping'
 import { addDays, isoDate, mondayOf, shiftWeek, visibleSlots, weekId } from '../logic/week'
 import { prepareForBring } from '../sync/bring'
 import { Chip, EmptyState, Icon, TopBar, toast } from './components'
@@ -20,6 +20,13 @@ export function ShoppingScreen() {
   const [extra, setExtra] = useState('')
   const [link, setLink] = useState<string>()
   const [preparing, setPreparing] = useState(false)
+  const [online, setOnline] = useState(navigator.onLine)
+  useEffect(() => {
+    const on = () => setOnline(navigator.onLine)
+    addEventListener('online', on)
+    addEventListener('offline', on)
+    return () => (removeEventListener('online', on), removeEventListener('offline', on))
+  }, [])
 
   // Every day from today to the end of next week that has something planned; by default the next 7 days count.
   const byId = new Map((dishes ?? []).map((d) => [d.id, d]))
@@ -34,14 +41,14 @@ export function ShoppingScreen() {
       return iso >= today && planned.length ? [{ key, date, planned, on: draft?.dayChoice?.[key] ?? iso < soon }] : []
     }),
   )
-  const { open, sent } = shoppingList(days.filter((d) => d.on).flatMap((d) => d.planned), draft)
-  const needed = open.filter((i) => i.needed)
+  const items = shoppingList(days.filter((d) => d.on).flatMap((d) => d.planned), draft)
+  const needed = items.filter((i) => i.needed)
 
   // The Bring! link is prepared in the background, so one tap opens Bring! directly (iOS needs a real link tap).
   const neededKey = JSON.stringify(needed.map((i) => [i.name, itemSpec(i)]))
   useEffect(() => {
     setLink(undefined)
-    if (!root || !needed.length || !navigator.onLine) return setPreparing(false)
+    if (!root || !needed.length || !online) return setPreparing(false)
     let current = true
     setPreparing(true)
     const timer = setTimeout(() => {
@@ -55,12 +62,12 @@ export function ShoppingScreen() {
       current = false
       clearTimeout(timer)
     }
-  }, [neededKey, root])
+  }, [neededKey, root, online])
 
   if (!draft || !dishes || !weeks || root === undefined) return <TopBar title={t('shopping.title')} />
 
-  const markSent = async () =>
-    update({ ...afterSend(open, [...open, ...sent], draft), handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
+  // Only a note who sent last; the list itself stays as it is (others may add to Bring! too).
+  const markSent = async () => update({ handedOverAt: new Date().toISOString(), handedOverBy: await getMeta<string>('userName') })
 
   const copy = async () => {
     try {
@@ -73,9 +80,7 @@ export function ShoppingScreen() {
   }
 
   const toggle = (i: ShopItem) =>
-    sent.includes(i)
-      ? update({ sent: (draft.sent ?? []).filter((k) => k !== i.key) })
-      : update({ excluded: i.needed ? [...(draft.excluded ?? []), i.key] : (draft.excluded ?? []).filter((k) => k !== i.key) })
+    update({ excluded: i.needed ? [...(draft.excluded ?? []), i.key] : (draft.excluded ?? []).filter((k) => k !== i.key) })
 
   const add = (e: FormEvent) => {
     e.preventDefault()
@@ -125,28 +130,32 @@ export function ShoppingScreen() {
         )}
         <p className="lead">{t('shopping.liveHint')}</p>
 
-        <ul className="shop-list">{open.map(row)}</ul>
+        <ul className="shop-list">{items.map(row)}</ul>
         <form className="add-item" onSubmit={add}>
           <input placeholder={t('shopping.addPlaceholder')} value={extra} onChange={(e) => setExtra(e.target.value)} aria-label={t('shopping.addPlaceholder')} />
           <button className="icon-btn" type="submit" aria-label={t('shopping.add')}><Icon name="plus" /></button>
         </form>
 
         <div className="draft-actions">
-          {root ? (
-            link && !preparing ? (
-              <a className="btn primary wide big" href={link} target="_blank" rel="noreferrer" onClick={() => markSent().then(() => toast(t('shopping.sentToast')))}>
-                <Icon name="cart" /> {t('shopping.toBring', { n: needed.length })}
-              </a>
+          {/* The main action stays in thumb reach on a long list. */}
+          <div className="save-bar">
+            {root ? (
+              link && !preparing ? (
+                <a className="btn primary wide big" href={link} target="_blank" rel="noreferrer" onClick={() => markSent().then(() => toast(t('shopping.sentToast')))}>
+                  <Icon name="cart" /> {t('shopping.toBring', { n: needed.length })}
+                </a>
+              ) : (
+                // While the link is prepared the label stays put; only the button waits.
+                <button className="btn primary wide big" disabled>
+                  <Icon name="cart" /> {t(!needed.length ? 'shopping.nothingChecked' : online ? 'shopping.toBring' : 'shopping.offline', { n: needed.length })}
+                </button>
+              )
             ) : (
-              <button className="btn primary wide big" disabled>
-                <Icon name="cart" /> {t(!needed.length ? 'shopping.nothingNew' : preparing ? 'shopping.preparing' : 'shopping.offline')}
+              <button className="btn primary wide big" onClick={copy} disabled={!needed.length}>
+                <Icon name="cart" /> {t(needed.length ? 'shopping.copyForBring' : 'shopping.nothingChecked', { n: needed.length })}
               </button>
-            )
-          ) : (
-            <button className="btn primary wide big" onClick={copy} disabled={!needed.length}>
-              <Icon name="cart" /> {t(needed.length ? 'shopping.copyForBring' : 'shopping.nothingNew', { n: needed.length })}
-            </button>
-          )}
+            )}
+          </div>
           {root ? (
             needed.length > 0 && <button className="btn small" onClick={copy}>{t('shopping.copyInstead')}</button>
           ) : (
@@ -161,14 +170,6 @@ export function ShoppingScreen() {
             </p>
           )}
         </div>
-
-        {sent.length > 0 && (
-          <section className="sent">
-            <h2>{t('shopping.sentTitle')}</h2>
-            <p className="muted small">{t('shopping.sentHint')}</p>
-            <ul className="shop-list">{sent.map(row)}</ul>
-          </section>
-        )}
       </div>
     </>
   )

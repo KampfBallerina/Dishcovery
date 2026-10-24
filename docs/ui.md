@@ -14,6 +14,7 @@ Die Farben sind **Fog** (Flächen) und **Marigold** (Akzent, aus dem Logo übern
 | `--bg` / `--surface` | #ECEDE8 (Fog) / #F8F8F5 | #1C1D1A / #262824 | Flächen |
 | `--ink` / `--muted` | #23241F / #5E615A | #EEEFEA / #A3A69E | Text |
 | `--basil` | #3F7A3C | #82C277 | nur Status: festgelegt, Erfolg, „lange nicht gegessen“ |
+| `--danger` | #B3261E | #F2B8B5 | nur destruktive Aktionen (Löschen, Dropbox trennen) |
 | `--logo-ground` | #1F201D | #1F201D | Untergrund des Logos (Willkommen, App-Icons) |
 
 - **Schrift:** Bricolage Grotesque (selbst gehostet über `@fontsource-variable`, funktioniert offline) für Tagesnamen, Gerichtnamen und Überschriften; für alles andere die iOS-Systemschrift.
@@ -37,7 +38,8 @@ Die Farben sind **Fog** (Flächen) und **Marigold** (Akzent, aus dem Logo übern
   - „Neues Gericht“ ist ein runder Marigold-Teller (`.fab`) unten rechts.
   - Beim Bearbeiten bleibt „Speichern“ unten fixiert (`.save-bar`).
   - Mehrstufige Entscheidungen laufen in einem Sheet.
-- **Rückmeldung:** Alles Tippbare gibt beim Drücken leicht nach (`:active`). Bestätigungen erscheinen als `toast()` über der Tab-Leiste, z. B. „Eingeladen“ oder „An Bring! übergeben“.
+- **Rückmeldung:** Alles Tippbare gibt beim Drücken leicht nach (`:active`). Bestätigungen erscheinen als `toast()` über der Tab-Leiste, z. B. „Eingeladen“ oder „An Bring! übergeben“. Ein Toast kann eine Aktion tragen; Würfeln bietet so „Rückgängig“ an.
+- **Zurück** geht im Verlauf zurück, wenn die vorige Seite aus der App kommt (`goBack` in `App.tsx`), sonst zum festen Link. Der Editor fragt vor dem Verlassen mit ungespeicherten Änderungen.
 - **Leere Zustände:** immer `EmptyState` (`components.tsx`), bestehend aus gestricheltem leerem Teller, optional mit Icon, einem Titel, einem Satz und einer Aktion.
 - **Hinweise:** `.banner.ok` (Basilikum) oder `.banner.warn` (Marigold), mit höchstens einer Aktion.
 - **Kräftige Flächen** gibt es nur zweimal: den Marigold-Kopf der Woche und den dunklen Willkommensbildschirm mit dem Logo, der die einzige Lade-Animation hat.
