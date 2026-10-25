@@ -27,6 +27,7 @@
     "rollDay": "{day} neu würfeln",
     "open": "Noch offen",
     "nothing": "Nichts geplant",
+    "off": "Kochfrei",
     "noDishes": "Leg zuerst ein paar Gerichte an, dann kann geplant und gewürfelt werden.",
     "rolled": "Neu gewürfelt"
   },
@@ -35,6 +36,7 @@
     "lock": "Festlegen",
     "locked": "Festgelegt",
     "clear": "Leeren",
+    "off": "Kochfrei",
     "hideLunch": "Mittag ausblenden",
     "fromList": "Aus der Liste",
     "assistant": "Assistent"
@@ -63,6 +65,7 @@
     "title": "Gerichte",
     "new": "Neues Gericht",
     "search": "Gericht oder Zutat suchen",
+    "whatNow": "Was kochen wir jetzt?",
     "emptyTitle": "Noch keine Gerichte",
     "empty": "Leg euer erstes Lieblingsgericht an. Alle im Haushalt sehen es danach und können es einplanen.",
     "noMatch": "Kein Gericht passt zur Suche.",
@@ -185,6 +188,7 @@
     "logout": "Dropbox trennen",
     "logoutConfirm": "Dropbox auf diesem Gerät trennen? Deine Gerichte bleiben hier und in Dropbox erhalten, werden aber nicht mehr abgeglichen.",
     "loggedOut": "Dropbox getrennt",
+    "source": "Dishcovery auf GitHub",
     "reconnectTitle": "Einmal neu verbinden",
     "reconnect": "Dishcovery braucht eine zusätzliche Freigabe, um Personen einzuladen. Verbinde Dropbox einmal neu, deine Daten bleiben erhalten.",
     "reconnectShort": "Verbinde Dropbox im Haushalt einmal neu.",

@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { Fragment, useEffect, useRef, useState, type FormEvent } from 'react'
 import { db, getMeta, save, type Dish, type Ingredient } from '../db'
 import { t } from '../i18n'
+import { matchIngredients } from '../logic/ingredients'
 import { addPhoto } from '../photo'
 import { go } from './App'
 import { Icon, Plate, TopBar } from './components'
@@ -44,6 +45,7 @@ export function DishEditor({ id }: { id?: string }) {
   const [form, setForm] = useState<Form>()
   const [initial, setInitial] = useState<string>()
   const [tagInput, setTagInput] = useState('')
+  const [ingRow, setIngRow] = useState<number>()
   const all = useDishes() ?? []
 
   useEffect(() => {
@@ -152,18 +154,27 @@ export function DishEditor({ id }: { id?: string }) {
 
       <fieldset className="field">
         <legend>{t('dishes.ingredients')}</legend>
-        <datalist id="ingredient-names">{ingredientNames.map((n) => <option key={n} value={n} />)}</datalist>
         {form.ingredients.map((i, k) => (
-          <div className="ing-row" key={k}>
-            <input aria-label={t('editor.amount')} placeholder={t('editor.amount')} inputMode="decimal" value={i.amount} onChange={(e) => setIng(k, { amount: e.target.value })} />
-            <input aria-label={t('editor.unit')} placeholder={t('editor.unit')} value={i.unit} onChange={(e) => setIng(k, { unit: e.target.value })} />
-            <input aria-label={t('editor.ingredient')} placeholder={t('editor.ingredient')} list="ingredient-names" value={i.name} onChange={(e) => setIng(k, { name: e.target.value })} />
-            {k < form.ingredients.length - 1 && (
-              <button type="button" className="icon-btn" aria-label={t('editor.removeIngredient')} onClick={() => set({ ingredients: form.ingredients.filter((_, j) => j !== k) })}>
-                <Icon name="close" size={18} />
-              </button>
+          <Fragment key={k}>
+            <div className="ing-row">
+              <input aria-label={t('editor.amount')} placeholder={t('editor.amount')} inputMode="decimal" value={i.amount} onChange={(e) => setIng(k, { amount: e.target.value })} />
+              <input aria-label={t('editor.unit')} placeholder={t('editor.unit')} value={i.unit} onChange={(e) => setIng(k, { unit: e.target.value })} />
+              <input aria-label={t('editor.ingredient')} placeholder={t('editor.ingredient')} autoComplete="off" value={i.name} onChange={(e) => (setIngRow(k), setIng(k, { name: e.target.value }))} />
+              {k < form.ingredients.length - 1 && (
+                <button type="button" className="icon-btn" aria-label={t('editor.removeIngredient')} onClick={() => (setIngRow(undefined), set({ ingredients: form.ingredients.filter((_, j) => j !== k) }))}>
+                  <Icon name="close" size={18} />
+                </button>
+              )}
+            </div>
+            {/* Own chips instead of <datalist>: iOS shows that list unreliably and a pick there often never reaches the field. */}
+            {k === ingRow && (
+              <div className="chips ing-suggest">
+                {matchIngredients(ingredientNames, i.name).map((n) => (
+                  <button type="button" key={n} className="chip ghost" onClick={() => (setIngRow(undefined), setIng(k, { name: n }))}>{n}</button>
+                ))}
+              </div>
             )}
-          </div>
+          </Fragment>
         ))}
       </fieldset>
 

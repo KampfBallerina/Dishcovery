@@ -38,6 +38,7 @@ Die Farben sind **Fog** (Flächen) und **Marigold** (Akzent, aus dem Logo übern
   - „Neues Gericht“ ist ein runder Marigold-Teller (`.fab`) unten rechts.
   - Beim Bearbeiten bleibt „Speichern“ unten fixiert (`.save-bar`).
   - Mehrstufige Entscheidungen laufen in einem Sheet.
+  - Der Assistent (Funken-Icon) ist überall derselbe Baustein (`Assistant` in `SlotSheet.tsx`): im Slot-Sheet der Woche und über den Funken in der Kopfleiste von „Gerichte“, dort öffnet ein Ergebnis das Gericht.
 - **Rückmeldung:** Alles Tippbare gibt beim Drücken leicht nach (`:active`). Bestätigungen erscheinen als `toast()` über der Tab-Leiste, z. B. „Eingeladen“ oder „An Bring! übergeben“. Ein Toast kann eine Aktion tragen; Würfeln bietet so „Rückgängig“ an.
 - **Zurück** geht im Verlauf zurück, wenn die vorige Seite aus der App kommt (`goBack` in `App.tsx`), sonst zum festen Link. Der Editor fragt vor dem Verlassen mit ungespeicherten Änderungen.
 - **Leere Zustände:** immer `EmptyState` (`components.tsx`), bestehend aus gestricheltem leerem Teller, optional mit Icon, einem Titel, einem Satz und einer Aktion.
@@ -46,7 +47,7 @@ Die Farben sind **Fog** (Flächen) und **Marigold** (Akzent, aus dem Logo übern
 
 ## Prinzipien
 
-- **Das Teller-Prinzip ist die Signatur der App.** Ein Gericht ist immer ein runder Teller (`<Plate>`): mit Foto, sonst mit dem Anfangsbuchstaben. Ein offener Slot ist ein gestrichelter leerer Teller, festgelegt heißt Basilikum-Rand mit Schloss. Keine Karten-Optik, sonst ruhige Listen mit feinen Trennlinien.
+- **Das Teller-Prinzip ist die Signatur der App.** Ein Gericht ist immer ein runder Teller (`<Plate>`): mit Foto, sonst mit dem Anfangsbuchstaben. Ein offener Slot ist ein gestrichelter leerer Teller, festgelegt heißt Basilikum-Rand mit Schloss. „Kochfrei“ ist ein sauberer, leerer Teller mit Rand, blass (`<Plate off>`): Hier fehlt nichts, es wurde so entschieden. Keine Karten-Optik, sonst ruhige Listen mit feinen Trennlinien.
 - **Kühnheit nur an einer Stelle:** dem Marigold-Kopf der Wochenansicht mit großen Tagesnamen. Alles andere bleibt ruhig.
 - **Touch-Ziele mindestens 44 px.** Safe-Areas (`env(safe-area-inset-*)`) beachten.
 - **Bewegung nur als Antwort auf eine Aktion** (Sheet fährt hoch). `prefers-reduced-motion` wird respektiert.

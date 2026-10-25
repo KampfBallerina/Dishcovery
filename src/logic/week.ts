@@ -1,4 +1,4 @@
-import type { Meal, SlotKey, Week } from '../db'
+import type { Meal, Slot, SlotKey, Week } from '../db'
 
 /** ISO-8601 week id, e.g. "2026-w43". Zero-padded so ids sort chronologically as strings. */
 export function weekId(date: Date): string {
@@ -39,3 +39,6 @@ export function visibleSlots(week: Week | undefined, days = [0, 1, 2, 3, 4, 5, 6
 
 export const dishIdsOf = (week: Week | undefined) =>
   visibleSlots(week).flatMap((k) => (week?.[k]?.dishId ? [week[k]!.dishId!] : []))
+
+/** "Kochfrei": deliberately nothing, locked so the dice skip it. A locked slot whose dish was deleted is not off. */
+export const isOff = (s: Slot | null | undefined) => !!s?.locked && !s.dishId

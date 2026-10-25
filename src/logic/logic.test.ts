@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import type { Dish, Week } from '../db'
 import { merge, isAhead } from '../sync/merge'
 import { pick, reroll, suggest } from './planner'
+import { ingredientKey, matchIngredients } from './ingredients'
 import { collect, itemSpec, shoppingList, toText } from './shopping'
-import { mondayOf, openDays, shiftWeek, visibleSlots, weekId } from './week'
+import { isOff, mondayOf, openDays, shiftWeek, visibleSlots, weekId } from './week'
 
 const dish = (id: string, extra: Partial<Dish> = {}): Dish => ({
   id, _ts: {}, name: id, ingredients: [], steps: [], servings: 2, tags: [], favorite: false, ...extra,
@@ -54,6 +55,12 @@ describe('planner', () => {
     expect(new Set(ids).size).toBe(3)
     expect(ids).not.toContain('a')
   })
+  it('leaves "Kochfrei" slots empty when rolling', () => {
+    const w = { id: 'x', _ts: {}, '0-abend': { dishId: null, locked: true }, '1-abend': { dishId: 'gone', locked: true } } as Week
+    expect([isOff(w['0-abend']), isOff(w['1-abend']), isOff(undefined), isOff({ dishId: null, locked: false })]).toEqual([true, false, false, false])
+    const keys = visibleSlots(w, [0, 1])
+    expect(reroll(w, keys, keys, dishes, new Set())).toEqual({})
+  })
   it('suggests by ingredients and filters diet', () => {
     const list = [
       dish('nudeln', { ingredients: [{ name: 'Nudeln' }, { name: 'Tomate' }], tags: ['vegetarisch'] }),
@@ -81,5 +88,38 @@ describe('shopping', () => {
     const extra = [{ key: 'm1', name: 'Kaffee', count: 1, needed: true, manual: true }]
     const list = shoppingList(planned, { excluded: ['mehl|'], extra })
     expect(list.map((i) => [i.name, i.needed])).toEqual([['Apfel', true], ['Mehl', false], ['Kaffee', true]])
+  })
+})
+
+describe('matchIngredients', () => {
+  const known = ['Zwiebel', 'Tomate', 'Frühlingszwiebel', 'Tomatenmark']
+  it('puts prefix matches first and ignores case', () => {
+    expect(matchIngredients(known, 'zwi')).toEqual(['Zwiebel', 'Frühlingszwiebel'])
+  })
+  it('suggests the known spelling for a different case, nothing for an exact match or empty input', () => {
+    expect(matchIngredients(known, 'tomate')).toEqual(['Tomate', 'Tomatenmark'])
+    expect(matchIngredients(known, 'Tomate ')).toEqual([])
+    expect(matchIngredients(known, '  ')).toEqual([])
+  })
+})
+
+describe('ingredientKey', () => {
+  const same = (...names: string[]) => expect(new Set(names.map(ingredientKey)).size).toBe(1)
+  it('treats plural and diminutive forms as one ingredient', () => {
+    same('Tomate', 'Tomaten', ' tomaten ')
+    same('Bockwurst', 'Bockwürste', 'Bockwürstchen')
+    same('Apfel', 'Äpfel')
+    same('Zwiebel', 'Zwiebeln')
+    same('Ei', 'Eier')
+    same('Champignon', 'Champignons')
+  })
+  it('keeps different things apart', () => {
+    for (const [a, b] of [['Reis', 'Rei'], ['Eis', 'Ei'], ['Brötchen', 'Brot'], ['Tomate', 'Tomatenmark']])
+      expect(ingredientKey(a)).not.toBe(ingredientKey(b))
+  })
+  it('merges spellings on the shopping list and matches them in suggestions', () => {
+    const items = collect([dish('a', { ingredients: [{ name: 'Tomaten', amount: 2 }] }), dish('b', { ingredients: [{ name: 'Tomate', amount: 1 }] })])
+    expect(items.map((i) => [i.name, i.amount])).toEqual([['Tomaten', 3]])
+    expect(matchIngredients(['Tomate'], 'Tomaten')).toEqual(['Tomate'])
   })
 })

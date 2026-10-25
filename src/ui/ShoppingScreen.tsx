@@ -119,16 +119,19 @@ export function ShoppingScreen() {
     <>
       <TopBar title={t('shopping.title')} />
       <div className="page shopping">
-        {days.length > 0 && (
-          <div className="chips scroll" role="group" aria-label={t('shopping.days')}>
-            {days.map((d) => (
-              <Chip key={d.key} on={d.on} onClick={() => update({ dayChoice: { ...draft.dayChoice, [d.key]: !d.on } })}>
-                {d.date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric' })}
-              </Chip>
-            ))}
-          </div>
-        )}
         <p className="lead">{t('shopping.liveHint')}</p>
+        {days.length > 0 && (
+          <>
+            <p className="chips-label" id="shop-days">{t('shopping.days')}</p>
+            <div className="chips scroll" role="group" aria-labelledby="shop-days">
+              {days.map((d) => (
+                <Chip key={d.key} on={d.on} onClick={() => update({ dayChoice: { ...draft.dayChoice, [d.key]: !d.on } })}>
+                  {d.date.toLocaleDateString(locale, { weekday: 'short', day: 'numeric' })}
+                </Chip>
+              ))}
+            </div>
+          </>
+        )}
 
         <ul className="shop-list">{items.map(row)}</ul>
         <form className="add-item" onSubmit={add}>

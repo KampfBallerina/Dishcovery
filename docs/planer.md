@@ -14,6 +14,7 @@ Nur heute und spätere Tage sind planbar (`openDays` in `week.ts`). Vergangene T
 Es gibt drei Varianten: die ganze Woche (alle sichtbaren Slots), einen Tag (sichtbare Slots des Tages) und einen einzelnen Slot (über das Slot-Sheet).
 
 - **Festgelegte Slots (`locked`) bleiben unverändert.** Ein von Hand oder über den Assistenten gewähltes Gericht wird automatisch festgelegt.
+- **Kochfrei** (`isOff` in `week.ts`) ist ein festgelegter Slot ohne Gericht: `{ dishId: null, locked: true }`. Würfeln lässt ihn leer, der Assistent über „Was essen wir?“ überspringt ihn, und die Einkaufsliste hat dafür nichts. Gesetzt und aufgehoben wird er im Slot-Sheet. Würfeln im Sheet würfelt ihn trotzdem bewusst neu.
 - **Gemieden werden:**
   - jedes Gericht, das schon in der Woche steht, auch das bisherige des Slots, damit Würfeln immer etwas Neues bringt
   - die Gerichte der Vorwoche (`recent`)

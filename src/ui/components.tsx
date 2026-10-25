@@ -40,10 +40,10 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   )
 }
 
-/** A dish is a plate: photo if there is one, else its initial. No dish = an empty, dashed plate. */
-export function Plate({ dish, size = 56, locked }: { dish?: Dish; size?: number; locked?: boolean }) {
+/** A dish is a plate: photo if there is one, else its initial. No dish = an empty, dashed plate; "Kochfrei" = a clean plate put aside. */
+export function Plate({ dish, size = 56, locked, off }: { dish?: Dish; size?: number; locked?: boolean; off?: boolean }) {
   const url = usePhotoUrl(dish?.photo)
-  const cls = ['plate', !dish && 'empty', locked && 'locked'].filter(Boolean).join(' ')
+  const cls = ['plate', off ? 'off' : !dish && 'empty', locked && 'locked'].filter(Boolean).join(' ')
   return (
     <span className={cls} style={{ '--s': `${size}px` } as CSSProperties} aria-hidden="true">
       {url ? <img src={url} alt="" /> : dish ? <span className="plate-letter">{dish.name.trim()[0]?.toUpperCase()}</span> : null}
@@ -68,11 +68,12 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     const d = ref.current!
-    if (open && !d.open) d.showModal()
+    // Focus the sheet, not its first button: iOS would ring the close button right away.
+    if (open && !d.open) (d.showModal(), d.focus())
     if (!open && d.open) d.close()
   }, [open])
   return (
-    <dialog ref={ref} className="sheet" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
+    <dialog ref={ref} className="sheet" tabIndex={-1} onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
       {open && (
         <div className="sheet-inner">
           <header className="sheet-head">

@@ -120,6 +120,9 @@ export function HouseholdScreen() {
           </>
         )}
         <p className="muted small">{t('household.offlineNote')}</p>
+        <p className="app-foot small">
+          <a href="https://github.com/KampfBallerina/Dishcovery" target="_blank" rel="noreferrer">{t('household.source')}</a>
+        </p>
       </div>
     </>
   )

@@ -1,4 +1,5 @@
 import type { Dish, Slot, SlotKey, Week } from '../db'
+import { ingredientKey } from './ingredients'
 
 const weight = (d: Dish) => (d.favorite ? 2 : 1)
 
@@ -44,7 +45,7 @@ const FOUR_WEEKS = 28 * 86400000
 
 /** Assistant: hard filters for time and diet, scores for the rest. Best first. */
 export function suggest(dishes: Dish[], a: Answers, lastEaten: (d: Dish) => string | undefined, now = Date.now()): Dish[] {
-  const have = new Set(a.have.map((h) => h.toLowerCase()))
+  const have = new Set(a.have.map(ingredientKey))
   return dishes
     .filter((d) => !d.deleted)
     .filter((d) => !a.maxMinutes || !d.minutes || d.minutes <= a.maxMinutes)
@@ -56,7 +57,7 @@ export function suggest(dishes: Dish[], a: Answers, lastEaten: (d: Dish) => stri
       const tags = d.tags.map((t) => t.toLowerCase())
       let score = 0
       if (have.size && d.ingredients.length)
-        score += (3 * d.ingredients.filter((i) => have.has(i.name.toLowerCase())).length) / d.ingredients.length
+        score += (3 * d.ingredients.filter((i) => have.has(ingredientKey(i.name))).length) / d.ingredients.length
       if (a.mood && tags.includes(a.mood)) score += 1
       const last = lastEaten(d)
       if (a.novelty === 'neu' && (!last || now - Date.parse(last) > FOUR_WEEKS)) score += 1

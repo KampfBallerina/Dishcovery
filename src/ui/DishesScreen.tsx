@@ -1,7 +1,9 @@
 ﻿import { useState } from 'react'
 import { t } from '../i18n'
-import { Chip, EmptyState, Icon, Plate, TopBar } from './components'
+import { go } from './App'
+import { Chip, EmptyState, Icon, Plate, Sheet, TopBar } from './components'
 import { knownTags, useDishes, useLastEaten, weeksSince } from './data'
+import { Assistant } from './SlotSheet'
 
 export function DishesScreen() {
   const dishes = useDishes()
@@ -10,6 +12,7 @@ export function DishesScreen() {
   const [favorites, setFavorites] = useState(false)
   const [tag, setTag] = useState<string>()
   const [longAgo, setLongAgo] = useState(false)
+  const [asking, setAsking] = useState(false)
   if (!dishes) return null
 
   const needle = q.toLowerCase()
@@ -23,7 +26,16 @@ export function DishesScreen() {
 
   return (
     <>
-      <TopBar title={t('dishes.title')} />
+      <TopBar title={t('dishes.title')}>
+        {dishes.length > 0 && (
+          <button className="icon-btn" onClick={() => setAsking(true)} aria-label={t('dishes.whatNow')}>
+            <Icon name="spark" />
+          </button>
+        )}
+      </TopBar>
+      <Sheet open={asking} onClose={() => setAsking(false)} title={t('dishes.whatNow')}>
+        <Assistant dishes={dishes} onPick={(d) => (setAsking(false), go(`/gerichte/${d.id}`))} />
+      </Sheet>
       {dishes.length > 0 && (
         <a className="fab" href="#/gerichte/neu" aria-label={t('dishes.new')}>
           <Icon name="plus" size={28} />

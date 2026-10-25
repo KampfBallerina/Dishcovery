@@ -1,13 +1,14 @@
 import type { Dish, ShoppingDraft, ShopItem } from '../db'
 import { locale } from '../i18n'
+import { ingredientKey } from './ingredients'
 
-/** Merges ingredients of the planned dishes: same name + unit are summed up. */
+/** Merges ingredients of the planned dishes: same ingredient (see ingredientKey) + unit are summed up, the first spelling is shown. */
 export function collect(dishes: Dish[]): ShopItem[] {
   const map = new Map<string, ShopItem>()
   for (const ing of dishes.flatMap((d) => d.ingredients)) {
     const name = ing.name.trim()
     if (!name) continue
-    const key = `${name.toLowerCase()}|${ing.unit?.toLowerCase() ?? ''}`
+    const key = `${ingredientKey(name)}|${ing.unit?.toLowerCase() ?? ''}`
     const cur = map.get(key)
     if (!cur) map.set(key, { key, name, amount: ing.amount, unit: ing.unit, count: 1, needed: true })
     else {

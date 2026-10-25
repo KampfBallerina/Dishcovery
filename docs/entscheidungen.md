@@ -9,7 +9,7 @@
 | Konflikte | spätere Änderung gewinnt, pro Feld per Zeitstempel | einfach zu verstehen, Konflikte sind selten |
 | Offline | alles geht offline, Sync sobald online | Kernanforderung |
 | Gericht | Name, 1 Foto, Videolink, Quelle, Zutaten (strukturiert), Schritte, Portionen, Zeit, freie Schlagwörter, Notizen, Favorit | **keine Bewertung** (ausdrücklich nicht gewünscht) |
-| Zutaten | Menge und Einheit optional, Name mit Autovervollständigung; auf der Einkaufsliste nur Menge mit Einheit („1 Becher Schmand“, aber „Apfel“) | Assistent und Einkauf brauchen auswertbare Zutaten |
+| Zutaten | Menge und Einheit optional, Name mit Autovervollständigung; Plural- und Verkleinerungsformen gelten als dieselbe Zutat („Tomate“ = „Tomaten“, „Bockwurst“ = „Bockwürstchen“, `ingredientKey`); auf der Einkaufsliste nur Menge mit Einheit („1 Becher Schmand“, aber „Apfel“) | Assistent und Einkauf brauchen auswertbare Zutaten |
 | Wochenplan | Slots Mittag und Abend pro Tag; standardmäßig nur Abend, „+ Mittag“ blendet den Mittag pro Tag ein | so plant der Haushalt |
 | Wochen | letzte, aktuelle und nächste Woche werden gespeichert, ältere gelöscht | Datenmenge klein halten (Wunsch des Nutzers) |
 | Würfeln | ganze Woche, ein Tag oder ein Slot; festgelegte Slots bleiben; keine Dopplung pro Woche; Gerichte der Vorwoche meiden; Favoriten doppelt so oft | |

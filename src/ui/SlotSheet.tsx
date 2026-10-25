@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { db, save, type Dish, type SlotKey, type Week } from '../db'
 import { t } from '../i18n'
+import { ingredientKey } from '../logic/ingredients'
 import { reroll, suggest, type Answers } from '../logic/planner'
-import { visibleSlots } from '../logic/week'
+import { isOff, visibleSlots } from '../logic/week'
 import { Chip, Icon, Plate, Sheet } from './components'
 import { knownIngredients, useLastEaten } from './data'
 
@@ -47,6 +48,10 @@ export function SlotSheet({ weekId, week, slot, dishes, recent, startWithAssista
             <Icon name="close" /> {t('slot.clear')}
           </button>
         )}
+        {/* Marking a slot "Kochfrei" is a decision like picking a dish, so the sheet closes. */}
+        <button className="btn" aria-pressed={isOff(current)} onClick={() => (isOff(current) ? set({ dishId: null, locked: false }) : (set({ dishId: null, locked: true }), onClose()))}>
+          <Icon name="plate" /> {t('slot.off')}
+        </button>
         {slot.endsWith('mittag') && (
           <button className="btn" onClick={() => (set(null), onClose())}>
             <Icon name="minus" /> {t('slot.hideLunch')}
@@ -105,7 +110,8 @@ const choices = {
   novelty: ['neu', 'klassiker'],
 } as const
 
-function Assistant({ dishes, onPick }: { dishes: Dish[]; onPick: (d: Dish) => void }) {
+/** Ingredients-first questions with the best matches on top; used for a slot and on the dishes screen. */
+export function Assistant({ dishes, onPick }: { dishes: Dish[]; onPick: (d: Dish) => void }) {
   const [a, setA] = useState<Answers>({ have: [] })
   const [q, setQ] = useState('')
   const [allIngredients, setAll] = useState(false)
@@ -115,7 +121,7 @@ function Assistant({ dishes, onPick }: { dishes: Dish[]; onPick: (d: Dish) => vo
   // Results sit above the questions, so every tap shows its effect; three keep the questions in view.
   const results = suggest(dishes, a, lastEaten).slice(0, 3)
   const toggle = <K extends keyof typeof choices>(k: K, v: Answers[K]) => setA({ ...a, [k]: a[k] === v ? undefined : v })
-  const have = new Set(a.have.map((h) => h.toLowerCase()))
+  const have = new Set(a.have.map(ingredientKey))
 
   return (
     <div className="assistant">
@@ -126,7 +132,7 @@ function Assistant({ dishes, onPick }: { dishes: Dish[]; onPick: (d: Dish) => vo
             dishes={results}
             onPick={onPick}
             note={(d) => {
-              const n = d.ingredients.filter((i) => have.has(i.name.toLowerCase())).length
+              const n = d.ingredients.filter((i) => have.has(ingredientKey(i.name))).length
               return have.size && d.ingredients.length ? t('assistant.matches', { n, total: d.ingredients.length }) : d.minutes ? t('dishes.minutes', { n: d.minutes }) : ''
             }}
           />

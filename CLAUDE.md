@@ -32,6 +32,7 @@ docs/              Detail-Dokumente, siehe unten
 5. **Neue Logik mit Verzweigungen kommt als reine Funktion nach `src/logic/`, mit Test.**
 6. **Keine neuen Abhängigkeiten für ein paar Zeilen Code.**
 7. **Abkürzungen mit bekannter Grenze bekommen einen Kommentar** im Format `shortcut: <Grenze>, <wann ausbauen>`.
+8. **Für Nutzer sichtbare Änderungen kommen in `CHANGELOG.md`** unter „Unveröffentlicht“, in Nutzersprache. Neue Funktionen auch in `README.md` beschreiben.
 
 ## Detail-Dokumente (nur bei Bedarf lesen)
 

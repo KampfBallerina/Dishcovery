@@ -37,7 +37,7 @@ Jeder synchronisierte Datensatz (`Synced`) hat:
 
 ## Woche (`Week`)
 
-Die Schlüssel haben die Form `"<tag>-<mahlzeit>"`, also `0-abend` bis `6-mittag`. Tag 0 ist Montag. Der Wert ist `{ dishId, locked }`.
+Die Schlüssel haben die Form `"<tag>-<mahlzeit>"`, also `0-abend` bis `6-mittag`. Tag 0 ist Montag. Der Wert ist `{ dishId, locked }`. `{ dishId: null, locked: true }` heißt „Kochfrei“.
 
 - Der Abend ist immer sichtbar.
 - Der Mittag ist nur sichtbar, wenn sein Schlüssel ein Objekt ist. `null` oder ein fehlender Schlüssel bedeuten ausgeblendet.
