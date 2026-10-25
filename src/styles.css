@@ -119,7 +119,8 @@ button, input, textarea { font: inherit; color: inherit; }
 .plate img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .plate-letter { font: 700 calc(var(--s) * .42) var(--display); color: var(--accent-text); }
 .plate.empty { background: none; box-shadow: none; border: 2px dashed var(--line); }
-.plate.off { opacity: .6; }
+.plate.off { opacity: .6; color: var(--muted); }
+.icon-accent { stroke: var(--accent-text); }
 .plate.locked { box-shadow: 0 0 0 calc(var(--s) * .06) var(--basil); }
 .plate-lock {
   position: absolute; right: -4px; bottom: -4px; display: grid; place-items: center;

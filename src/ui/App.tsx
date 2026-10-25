@@ -36,6 +36,8 @@ function useRoute() {
   const [route, setRoute] = useState(read)
   useEffect(() => {
     const on = () => {
+      // Blur before the focused field unmounts: iOS only undoes its keyboard viewport shift on a real blur, else the fixed tab bar stays shifted.
+      (document.activeElement as HTMLElement | null)?.blur?.()
       if (history.state?.depth == null) history.replaceState({ depth: replacing ? depth : ++depth }, '')
       else depth = history.state.depth
       replacing = false

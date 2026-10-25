@@ -43,7 +43,7 @@ Wer vorher schon allein Gerichte angelegt hat, behält sie beim Beitreten, sie w
 - Ein Tipp auf eine Mahlzeit öffnet die Auswahl:
   - **Würfeln** für genau diese Mahlzeit
   - **Festlegen**: Das Gericht bleibt beim Würfeln stehen. Von Hand gewählte Gerichte sind automatisch festgelegt (Teller mit grünem Rand und Schloss).
-  - **Kochfrei**: An diesem Tag wird nicht gekocht, zum Beispiel wenn ihr essen geht. Würfeln lässt ihn leer, und die Einkaufsliste plant nichts dafür ein.
+  - **Kochfrei**: An diesem Tag wird nicht gekocht, zum Beispiel wenn ihr essen geht. Im Wochenplan zeigt eine schlafende Kochmütze den freien Tag. Würfeln lässt ihn leer, und die Einkaufsliste plant nichts dafür ein.
   - **Leeren** oder **Mittag ausblenden**
   - ein Gericht **aus der Liste** wählen oder den **Assistenten** fragen
 - **„Was essen wir?“** startet den Assistenten für die nächste offene Mahlzeit. Ist die Woche schon voll, wählt ihr nach dem Gericht den Tag, den es ersetzen soll.

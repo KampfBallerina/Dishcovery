@@ -29,6 +29,16 @@ const paths = {
   people: <><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5" /><path d="M15.5 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.5 3.5 5.2" /></>,
   mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 6.5l8.5 6.5 8.5-6.5" /></>,
   camera: <><path d="M4 8h3l2-3h6l2 3h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>,
+  // "Kochfrei": a sleeping chef's hat. Toque from Lucide's chef-hat (ISC license); strokes are thicker to make up for the scale.
+  sleep: (
+    <g transform="translate(.2 6.98) scale(.679)">
+      <g transform="rotate(-14 12 12)" strokeWidth="2.4">
+        <path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.46.32-.84.73-1.04a4 4 0 0 0-2.14-7.59 5 5 0 0 0-9.18 0 4 4 0 0 0-2.14 7.59c.41.2.73.58.73 1.04V20a1 1 0 0 0 1 1zM6 17h12" />
+      </g>
+      <path className="icon-accent" strokeWidth="2" d="M21.52 .1h3.4l-3.4 3.74h3.4" />
+      <path className="icon-accent" strokeWidth="2.3" d="M27.33-7.18h4.8l-4.8 5.28h4.8" />
+    </g>
+  ),
 }
 export type IconName = keyof typeof paths
 
@@ -40,13 +50,13 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   )
 }
 
-/** A dish is a plate: photo if there is one, else its initial. No dish = an empty, dashed plate; "Kochfrei" = a clean plate put aside. */
+/** A dish is a plate: photo if there is one, else its initial. No dish = an empty, dashed plate; "Kochfrei" = a pale plate with a sleeping chef's hat. */
 export function Plate({ dish, size = 56, locked, off }: { dish?: Dish; size?: number; locked?: boolean; off?: boolean }) {
   const url = usePhotoUrl(dish?.photo)
   const cls = ['plate', off ? 'off' : !dish && 'empty', locked && 'locked'].filter(Boolean).join(' ')
   return (
     <span className={cls} style={{ '--s': `${size}px` } as CSSProperties} aria-hidden="true">
-      {url ? <img src={url} alt="" /> : dish ? <span className="plate-letter">{dish.name.trim()[0]?.toUpperCase()}</span> : null}
+      {url ? <img src={url} alt="" /> : dish ? <span className="plate-letter">{dish.name.trim()[0]?.toUpperCase()}</span> : off ? <Icon name="sleep" size={size * 0.5} /> : null}
       {locked && <span className="plate-lock"><Icon name="lock" size={Math.max(12, size * 0.22)} /></span>}
     </span>
   )

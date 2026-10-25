@@ -47,7 +47,7 @@ Die Farben sind **Fog** (Flächen) und **Marigold** (Akzent, aus dem Logo übern
 
 ## Prinzipien
 
-- **Das Teller-Prinzip ist die Signatur der App.** Ein Gericht ist immer ein runder Teller (`<Plate>`): mit Foto, sonst mit dem Anfangsbuchstaben. Ein offener Slot ist ein gestrichelter leerer Teller, festgelegt heißt Basilikum-Rand mit Schloss. „Kochfrei“ ist ein sauberer, leerer Teller mit Rand, blass (`<Plate off>`): Hier fehlt nichts, es wurde so entschieden. Keine Karten-Optik, sonst ruhige Listen mit feinen Trennlinien.
+- **Das Teller-Prinzip ist die Signatur der App.** Ein Gericht ist immer ein runder Teller (`<Plate>`): mit Foto, sonst mit dem Anfangsbuchstaben. Ein offener Slot ist ein gestrichelter leerer Teller, festgelegt heißt Basilikum-Rand mit Schloss. „Kochfrei“ ist ein blasser Teller mit Rand und einer schlafenden Kochmütze (Icon `sleep`, die „zZ“ in Marigold) (`<Plate off>`): Hier fehlt nichts, die Küche hat bewusst frei. Keine Karten-Optik, sonst ruhige Listen mit feinen Trennlinien.
 - **Kühnheit nur an einer Stelle:** dem Marigold-Kopf der Wochenansicht mit großen Tagesnamen. Alles andere bleibt ruhig.
 - **Touch-Ziele mindestens 44 px.** Safe-Areas (`env(safe-area-inset-*)`) beachten.
 - **Bewegung nur als Antwort auf eine Aktion** (Sheet fährt hoch). `prefers-reduced-motion` wird respektiert.
