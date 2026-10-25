@@ -185,6 +185,7 @@ a.slot { color: inherit; text-decoration: none; }
 .sheet-inner { padding: 8px var(--gutter) calc(24px + env(safe-area-inset-bottom)); }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 1; padding: 8px 0; }
 .sheet-head h2 { font-size: 24px; }
+.sheet-hint { color: var(--muted); margin: 0 0 12px; max-width: 46ch; }
 .slot-current { display: flex; align-items: center; gap: 14px; margin: 4px 0 14px; }
 .slot-current a { font: 650 20px var(--display); color: var(--ink); }
 .slot-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
@@ -218,7 +219,8 @@ a.slot { color: inherit; text-decoration: none; }
 .assistant-results { min-height: 195px; margin-bottom: 18px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); }
+/* Sideways only: the padding holds the chips' enlarged hit area, otherwise it overflows and the row scrolls vertically too. */
+.chips.scroll { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; margin: -4px calc(-1 * var(--gutter)); padding: 4px var(--gutter); }
 .chip {
   display: inline-flex; align-items: center; gap: 4px; flex: none;
   min-height: 36px; padding: 0 14px; border-radius: 999px;

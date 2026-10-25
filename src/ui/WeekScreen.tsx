@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, save, type SlotKey, type Week } from '../db'
+import { db, save, type Dish, type SlotKey, type Week } from '../db'
 import { locale, t } from '../i18n'
 import { reroll } from '../logic/planner'
 import { addDays, dishIdsOf, isOff, isoDate,mondayOf, openDays, shiftWeek, slotKey, visibleSlots, weekId } from '../logic/week'
-import { HouseholdLink, Icon, Plate, toast } from './components'
-import { SlotSheet } from './SlotSheet'
+import { HouseholdLink, Icon, Plate, Sheet, toast } from './components'
+import { PlanSheet } from './DishDetail'
+import { Assistant, SlotSheet } from './SlotSheet'
 import { useDishes } from './data'
 
 export function WeekScreen() {
@@ -17,6 +18,7 @@ export function WeekScreen() {
   const byId = new Map(dishes.map((d) => [d.id, d]))
   const [target, setTarget] = useState<SlotKey>()
   const [assistant, setAssistant] = useState(false)
+  const [replacing, setReplacing] = useState<'ask' | Dish>()
 
   const monday = mondayOf(id)
   const today = isoDate(new Date())
@@ -40,11 +42,12 @@ export function WeekScreen() {
     toast(t('week.rolled'), { label: t('common.undo'), run: () => save(db.weeks, id, before as Partial<Week>) })
   }
 
-  // The assistant fills the first empty slot from today on, else the next dinner; "Kochfrei" slots are skipped.
+  // The assistant fills the first empty slot from today on ("Kochfrei" doesn't count as empty).
+  // With nothing empty it asks for a dish first, then which day it replaces.
   const openAssistant = () => {
-    const upcoming = visibleSlots(week, open).filter((k) => !isOff(week?.[k]))
-    setTarget(upcoming.find((k) => !byId.has(week?.[k]?.dishId ?? '')) ?? upcoming[0])
-    setAssistant(true)
+    const empty = visibleSlots(week, open).find((k) => !isOff(week?.[k]) && !byId.has(week?.[k]?.dishId ?? ''))
+    if (empty) (setTarget(empty), setAssistant(true))
+    else setReplacing('ask')
   }
 
   return (
@@ -132,6 +135,14 @@ export function WeekScreen() {
           )
         })}
       </ol>
+
+      {replacing === 'ask' && (
+        <Sheet open onClose={() => setReplacing(undefined)} title={t('week.whatToEat')}>
+          <p className="sheet-hint">{t('week.fullHint')}</p>
+          <Assistant dishes={dishes} onPick={setReplacing} />
+        </Sheet>
+      )}
+      {replacing && replacing !== 'ask' && <PlanSheet dish={replacing} onClose={() => setReplacing(undefined)} />}
 
       {target && (
         <SlotSheet

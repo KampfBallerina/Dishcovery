@@ -23,7 +23,7 @@ Es gibt drei Varianten: die ganze Woche (alle sichtbaren Slots), einen Tag (sich
 
 ## Assistent (`suggest`)
 
-Er öffnet sich über „Was essen wir?“ (für den nächsten offenen Slot ab heute) oder im Slot-Sheet unter dem Tab „Assistent“.
+Er öffnet sich über „Was essen wir?“ (für den nächsten offenen Slot ab heute) oder im Slot-Sheet unter dem Tab „Assistent“. Ist ab heute nichts mehr offen (kochfrei zählt nicht als offen), öffnet „Was essen wir?“ den Assistenten allein. Das gewählte Gericht geht dann ins „Einplanen“-Sheet (`PlanSheet`), wo ihr den Tag wählt, den es ersetzt.
 
 | Frage | Wirkung |
 |---|---|

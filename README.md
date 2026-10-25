@@ -46,7 +46,7 @@ Wer vorher schon allein Gerichte angelegt hat, behält sie beim Beitreten, sie w
   - **Kochfrei**: An diesem Tag wird nicht gekocht, zum Beispiel wenn ihr essen geht. Würfeln lässt ihn leer, und die Einkaufsliste plant nichts dafür ein.
   - **Leeren** oder **Mittag ausblenden**
   - ein Gericht **aus der Liste** wählen oder den **Assistenten** fragen
-- **„Was essen wir?“** startet den Assistenten für die nächste offene Mahlzeit.
+- **„Was essen wir?“** startet den Assistenten für die nächste offene Mahlzeit. Ist die Woche schon voll, wählt ihr nach dem Gericht den Tag, den es ersetzen soll.
 - Vergangene Tage bleiben als Rückblick stehen, sind aber nicht mehr planbar. Mit den Pfeilen geht es zur letzten und zur nächsten Woche.
 - Ein Würfeln lässt sich über **„Rückgängig“** im Hinweis unten zurücknehmen.
 

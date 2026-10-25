@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db, save, type Dish, type Ingredient, type SlotKey, type Week } from '../db'
 import { locale, t } from '../i18n'
 import { fmtAmount } from '../logic/shopping'
-import { addDays, mondayOf, openDays, shiftWeek, visibleSlots, weekId } from '../logic/week'
+import { addDays, isOff, mondayOf, openDays, shiftWeek, visibleSlots, weekId } from '../logic/week'
 import { Icon, Plate, Sheet, TopBar, toast } from './components'
 import { useDishes } from './data'
 
@@ -120,8 +120,8 @@ export function DishDetail({ id }: { id: string }) {
   )
 }
 
-/** Upcoming slots of this and next week; picking one plans the dish there, decided like any hand pick. */
-function PlanSheet({ dish, onClose }: { dish: Dish; onClose: () => void }) {
+/** Upcoming slots of this and next week; picking one plans the dish there (replacing what's there), decided like any hand pick. */
+export function PlanSheet({ dish, onClose }: { dish: Dish; onClose: () => void }) {
   const current = weekId(new Date())
   const ids = [current, shiftWeek(current, 1)]
   const weeks = useLiveQuery(() => db.weeks.bulkGet(ids), [current])
@@ -129,7 +129,9 @@ function PlanSheet({ dish, onClose }: { dish: Dish; onClose: () => void }) {
   if (!weeks || !dishes) return null
   const byId = new Map(dishes.map((d) => [d.id, d]))
 
-  const slots = ids.flatMap((wid, w) => visibleSlots(weeks[w], openDays(wid)).map((k) => ({ wid, k, other: byId.get(weeks[w]?.[k]?.dishId ?? '') })))
+  const slots = ids.flatMap((wid, w) =>
+    visibleSlots(weeks[w], openDays(wid)).map((k) => ({ wid, k, other: byId.get(weeks[w]?.[k]?.dishId ?? ''), off: isOff(weeks[w]?.[k]) })),
+  )
   const label = (wid: string, k: SlotKey) =>
     `${addDays(mondayOf(wid), Number(k[0])).toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'numeric' })}, ${t(`meal.${k.split('-')[1]}`)}`
   const plan = async (wid: string, k: SlotKey) => {
@@ -141,13 +143,13 @@ function PlanSheet({ dish, onClose }: { dish: Dish; onClose: () => void }) {
   return (
     <Sheet open onClose={onClose} title={t('dishes.planTitle', { name: dish.name })}>
       <ul className="pick-list">
-        {slots.map(({ wid, k, other }) => (
+        {slots.map(({ wid, k, other, off }) => (
           <li key={wid + k}>
             <button onClick={() => plan(wid, k)}>
-              <Plate dish={other} size={44} />
+              <Plate dish={other} off={off} size={44} />
               <span className="pick-text">
                 <span>{label(wid, k)}</span>
-                <small>{other?.name ?? t('week.open')}</small>
+                <small>{other?.name ?? t(off ? 'week.off' : 'week.open')}</small>
               </span>
             </button>
           </li>

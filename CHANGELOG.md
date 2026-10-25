@@ -12,6 +12,8 @@ Was sich in Dishcovery geändert hat, die neuesten Änderungen zuerst.
 - Link zu Dishcovery auf GitHub unten auf der Haushalt-Seite.
 
 ### Verbessert
+- „Was essen wir?“ funktioniert auch bei voller Woche: Erst wählt ihr ein Gericht, dann den Tag, den es ersetzt.
+- Die Filterzeile auf der Gerichte-Seite scrollt nur noch seitwärts und wackelt nicht mehr nach oben und unten.
 - Über den Tagen auf der Einkaufsliste steht jetzt „Einkaufen für“.
 - Das Mengenfeld im Editor ist breit genug für „Menge“.
 - Das letzte Gericht der Liste lässt sich unter dem Plus-Knopf hervorscrollen.

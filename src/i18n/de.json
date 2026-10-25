@@ -29,7 +29,8 @@
     "nothing": "Nichts geplant",
     "off": "Kochfrei",
     "noDishes": "Leg zuerst ein paar Gerichte an, dann kann geplant und gewürfelt werden.",
-    "rolled": "Neu gewürfelt"
+    "rolled": "Neu gewürfelt",
+    "fullHint": "Die Woche ist schon verplant. Sucht euch ein Gericht aus, danach wählt ihr den Tag, den es ersetzt."
   },
   "slot": {
     "roll": "Würfeln",
