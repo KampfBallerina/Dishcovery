@@ -25,6 +25,7 @@ Jeder synchronisierte Datensatz (`Synced`) hat:
 
 - `name`
 - `photo`: Pfad `photos/…`
+- `recipeImages[]`: Rezept als Bild (z. B. Kochbuchseite), ebenfalls `photos/…`, bis 2400 px statt 1600 px, damit Schrift lesbar bleibt
 - `videoUrl`, `sourceUrl`
 - `ingredients[]`: `{ amount?, unit?, name }`
 - `steps[]`

@@ -23,6 +23,9 @@ export interface Dish extends Synced {
   name: string
   /** Path relative to the household folder, e.g. "photos/<uuid>.jpg". */
   photo?: string
+  /** Recipe pages as images (e.g. a cookbook photo), same "photos/…" paths. */
+  // shortcut: the list merges as one field (concurrent offline edits: one side wins), split per image if that bites.
+  recipeImages?: string[]
   videoUrl?: string
   sourceUrl?: string
   ingredients: Ingredient[]

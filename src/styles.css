@@ -89,9 +89,9 @@ button, input, textarea { font: inherit; color: inherit; }
 .btn.big { min-height: 56px; font-size: 18px; flex: 1; }
 .btn.wide { width: 100%; }
 /* Touch feedback: everything tappable gives way under the thumb. */
-.btn, .icon-btn, .chip, .slot, .fab, .pick-list button, .dish-list a { transition: transform .08s ease-out; }
+.btn, .icon-btn, .chip, .slot, .fab, .pick-list button, .dish-list a, .recipe-page { transition: transform .08s ease-out; }
 .btn:active:not(:disabled), .icon-btn:active:not(:disabled), .chip:active, .slot:active, .fab:active { transform: scale(.95); }
-.pick-list button:active, .dish-list a:active { transform: scale(.98); }
+.pick-list button:active, .dish-list a:active, .recipe-page:active { transform: scale(.98); }
 .btn[aria-pressed='true'] { border-color: var(--basil); color: var(--basil); }
 .icon-btn {
   position: relative; display: inline-grid; place-items: center;
@@ -398,3 +398,21 @@ input[type='checkbox'] { width: 24px; height: 24px; accent-color: var(--accent);
 .shop-list li label { flex: 1; border-bottom: 0; }
 .shopping .chips.scroll { margin-top: 4px; margin-bottom: 12px; }
 .chips-label { margin: 0; font-weight: 600; font-size: 15px; }
+
+/* Recipe pages: paper, not plates. A plate is reserved for the dish itself. */
+.recipe-pages { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.recipe-page {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  width: 92px; aspect-ratio: 3 / 4; padding: 0; overflow: hidden; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--muted); font-size: 13px; text-align: center;
+}
+.recipe-page img { width: 100%; height: 100%; object-fit: cover; }
+.recipe-page .icon-btn {
+  position: absolute; top: 4px; right: 4px; width: 30px; height: 30px;
+  background: var(--bg); color: var(--ink); border-radius: 999px;
+}
+.recipe-page .icon-btn::after { content: ""; position: absolute; inset: -7px; }
+.recipe-page.add { border: 1.5px dashed var(--line); background: none; }
+.recipe-page.add:focus-within { outline: 2px solid var(--accent); }
+.recipe-view { display: flex; flex-direction: column; gap: 12px; }
+.recipe-view img { display: block; width: 100%; border-radius: 10px; background: var(--surface); }

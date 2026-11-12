@@ -4,7 +4,7 @@ import { t } from '../i18n'
 import { matchIngredients } from '../logic/ingredients'
 import { addPhoto } from '../photo'
 import { go } from './App'
-import { Icon, Plate, TopBar } from './components'
+import { Icon, PhotoImg, Plate, TopBar } from './components'
 import { knownIngredients, knownTags, useDishes } from './data'
 
 const SUGGESTED_TAGS = ['vegetarisch', 'vegan', 'schnell', 'leicht', 'deftig', 'Ofen', 'Suppe', 'Salat']
@@ -12,6 +12,7 @@ const SUGGESTED_TAGS = ['vegetarisch', 'vegan', 'schnell', 'leicht', 'deftig', '
 interface Form {
   name: string
   photo?: string
+  recipeImages: string[]
   videoUrl: string
   sourceUrl: string
   ingredients: { amount: string; unit: string; name: string }[]
@@ -25,6 +26,7 @@ interface Form {
 const toForm = (d?: Dish): Form => ({
   name: d?.name ?? '',
   photo: d?.photo,
+  recipeImages: d?.recipeImages ?? [],
   videoUrl: d?.videoUrl ?? '',
   sourceUrl: d?.sourceUrl ?? '',
   ingredients: [...(d?.ingredients ?? []).map((i) => ({ amount: i.amount?.toString().replace('.', ',') ?? '', unit: i.unit ?? '', name: i.name })), { amount: '', unit: '', name: '' }],
@@ -94,6 +96,7 @@ export function DishEditor({ id }: { id?: string }) {
     const patch: Partial<Dish> = {
       name: form.name.trim(),
       photo: form.photo,
+      recipeImages: form.recipeImages,
       videoUrl: url(form.videoUrl),
       sourceUrl: url(form.sourceUrl),
       ingredients: form.ingredients
@@ -183,6 +186,32 @@ export function DishEditor({ id }: { id?: string }) {
         <small className="muted">{t('editor.stepsHint')}</small>
         <textarea rows={7} value={form.steps} onChange={(e) => set({ steps: e.target.value })} />
       </label>
+
+      <fieldset className="field">
+        <legend>{t('dishes.recipeImages')}</legend>
+        <small className="muted">{t('editor.recipeImagesHint')}</small>
+        <div className="recipe-pages">
+          {form.recipeImages.map((p, k) => (
+            <span key={p} className="recipe-page">
+              <PhotoImg path={p} alt={t('dishes.recipeImage', { n: k + 1 })} />
+              <button type="button" className="icon-btn" aria-label={t('editor.removeRecipeImage', { n: k + 1 })} onClick={() => set({ recipeImages: form.recipeImages.filter((x) => x !== p) })}>
+                <Icon name="close" size={16} />
+              </button>
+            </span>
+          ))}
+          <label className="recipe-page add">
+            <Icon name="camera" />
+            <span>{t('editor.addRecipeImage')}</span>
+            <input type="file" accept="image/*" multiple className="visually-hidden" onChange={async (e) => {
+              const files = [...(e.target.files ?? [])]
+              e.target.value = ''
+              // Higher than dish photos so small print stays readable.
+              const added = await Promise.all(files.map((f) => addPhoto(f, 2400)))
+              setForm((f) => f && { ...f, recipeImages: [...f.recipeImages, ...added] })
+            }} />
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset className="field">
         <legend>{t('editor.tags')}</legend>

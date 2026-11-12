@@ -9,6 +9,7 @@
 | Konflikte | spätere Änderung gewinnt, pro Feld per Zeitstempel | einfach zu verstehen, Konflikte sind selten |
 | Offline | alles geht offline, Sync sobald online | Kernanforderung |
 | Gericht | Name, 1 Foto, Videolink, Quelle, Zutaten (strukturiert), Schritte, Portionen, Zeit, freie Schlagwörter, Notizen, Favorit | **keine Bewertung** (ausdrücklich nicht gewünscht) |
+| Rezept als Bild | beliebig viele Bilder pro Gericht zusätzlich zum Foto, nur Bilder (kein PDF); eigener Abschnitt in der Detailansicht, Tipp öffnet die Seiten groß (Interview 12.11.2026) | manche Rezepte gibt es nur als Foto oder Screenshot |
 | Zutaten | Menge und Einheit optional, Name mit Autovervollständigung; Plural- und Verkleinerungsformen gelten als dieselbe Zutat („Tomate“ = „Tomaten“, „Bockwurst“ = „Bockwürstchen“, `ingredientKey`); auf der Einkaufsliste nur Menge mit Einheit („1 Becher Schmand“, aber „Apfel“) | Assistent und Einkauf brauchen auswertbare Zutaten |
 | Wochenplan | Slots Mittag und Abend pro Tag; standardmäßig nur Abend, „+ Mittag“ blendet den Mittag pro Tag ein | so plant der Haushalt |
 | Wochen | letzte, aktuelle und nächste Woche werden gespeichert, ältere gelöscht | Datenmenge klein halten (Wunsch des Nutzers) |

@@ -52,7 +52,7 @@ Wer vorher schon allein Gerichte angelegt hat, behält sie beim Beitreten, sie w
 
 ### Gerichte
 
-- Ein Gericht hat Name, **Foto**, Zutaten mit Menge und Einheit, Zubereitungsschritte, Portionen, Zeit, Schlagwörter, Notizen, einen **Videolink** und eine **Rezept-Quelle**. Mit dem Herz markiert ihr Favoriten.
+- Ein Gericht hat Name, **Foto**, Zutaten mit Menge und Einheit, Zubereitungsschritte, Portionen, Zeit, Schlagwörter, Notizen, einen **Videolink** und eine **Rezept-Quelle**. Gibt es das Rezept nur als Foto oder Screenshot, hängt ihr es als **Rezept als Bild** an, auch mehrere Seiten. Mit dem Herz markiert ihr Favoriten.
 - **Suche** nach Name oder Zutat, Filter für Favoriten und Schlagwörter, **„Länger her zuerst“** zeigt, was ihr lange nicht gegessen habt.
 - Beim Anlegen werden **Zutaten aus anderen Gerichten vorgeschlagen**. So bleibt die Schreibweise einheitlich.
 - „Tomate“ und „Tomaten“, „Bockwurst“ und „Bockwürstchen“ gelten als **dieselbe Zutat**, auf der Einkaufsliste und im Assistenten.

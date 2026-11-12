@@ -4,7 +4,7 @@ import { db, save, type Dish, type Ingredient, type SlotKey, type Week } from '.
 import { locale, t } from '../i18n'
 import { fmtAmount } from '../logic/shopping'
 import { addDays, isOff, mondayOf, openDays, shiftWeek, visibleSlots, weekId } from '../logic/week'
-import { Icon, Plate, Sheet, TopBar, toast } from './components'
+import { Icon, PhotoImg, Plate, Sheet, TopBar, toast } from './components'
 import { useDishes } from './data'
 
 export const scaled = (i: Ingredient, factor: number) =>
@@ -14,6 +14,7 @@ export function DishDetail({ id }: { id: string }) {
   const dish = useLiveQuery(() => db.dishes.get(id), [id])
   const [servings, setServings] = useState<number>()
   const [planning, setPlanning] = useState(false)
+  const [page, setPage] = useState<number>()
   // The small title appears once the big one has scrolled under the top bar.
   const [titleShown, setTitleShown] = useState(false)
   const heroTitle = useRef<HTMLHeadingElement>(null)
@@ -100,6 +101,19 @@ export function DishDetail({ id }: { id: string }) {
         </section>
       )}
 
+      {!!dish.recipeImages?.length && (
+        <section>
+          <h2>{t('dishes.recipeImages')}</h2>
+          <div className="recipe-pages">
+            {dish.recipeImages.map((p, k) => (
+              <button key={p} className="recipe-page" onClick={() => setPage(k)}>
+                <PhotoImg path={p} alt={t('dishes.recipeImage', { n: k + 1 })} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       {dish.notes && (
         <section>
           <h2>{t('dishes.notes')}</h2>
@@ -115,6 +129,14 @@ export function DishDetail({ id }: { id: string }) {
           })}
         </p>
       )}
+      <Sheet open={page != null} onClose={() => setPage(undefined)} title={t('dishes.recipeImages')}>
+        {/* From the tapped page on, stacked, so a two-page recipe reads top to bottom; pinch zoom is the browser's own. */}
+        <div className="recipe-view">
+          {dish.recipeImages?.slice(page).map((p, k) => (
+            <PhotoImg key={p} path={p} alt={t('dishes.recipeImage', { n: k + 1 + (page ?? 0) })} />
+          ))}
+        </div>
+      </Sheet>
       {planning && <PlanSheet dish={dish} onClose={() => setPlanning(false)} />}
     </article>
   )

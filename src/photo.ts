@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from './db'
 
-/** Scales to max 1600 px and stores as JPEG; returns the path to put into dish.photo. */
-export async function addPhoto(file: File): Promise<string> {
+/** Scales to `max` px and stores as JPEG; returns the path to put into dish.photo or dish.recipeImages. */
+export async function addPhoto(file: File, max = 1600): Promise<string> {
   const img = await createImageBitmap(file)
-  const scale = Math.min(1, 1600 / Math.max(img.width, img.height))
+  const scale = Math.min(1, max / Math.max(img.width, img.height))
   const canvas = document.createElement('canvas')
   canvas.width = Math.round(img.width * scale)
   canvas.height = Math.round(img.height * scale)

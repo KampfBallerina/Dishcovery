@@ -5,6 +5,7 @@ Was sich in Dishcovery geändert hat, die neuesten Änderungen zuerst.
 ## Unveröffentlicht
 
 ### Neu
+- **Rezept als Bild:** An ein Gericht lassen sich zusätzlich zum Foto Bilder vom Rezept anhängen, zum Beispiel eine Kochbuchseite oder ein Screenshot. Ein Tipp zeigt sie groß zum Lesen und Zoomen.
 - **Kochfrei:** Einzelne Mahlzeiten lassen sich bewusst leer lassen, zum Beispiel wenn ihr essen geht. Würfeln und „Was essen wir?“ überspringen sie, und die Einkaufsliste plant nichts dafür ein. Eine schlafende Kochmütze auf dem Teller zeigt den freien Tag.
 - **Assistent auf der Gerichte-Seite:** Über den Funken oben rechts findet ihr spontan ein Gericht mit den Zutaten, die gerade da sind.
 - **Zutaten-Vorschläge im Editor:** Beim Tippen erscheinen Zutaten aus anderen Gerichten als Chips. Ein Tipp übernimmt sie zuverlässig, auch auf dem iPhone.

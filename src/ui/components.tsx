@@ -62,6 +62,12 @@ export function Plate({ dish, size = 56, locked, off }: { dish?: Dish; size?: nu
   )
 }
 
+/** A stored photo by its path; shows nothing until the blob has synced. */
+export function PhotoImg({ path, alt }: { path: string; alt: string }) {
+  const url = usePhotoUrl(path)
+  return url ? <img src={url} alt={alt} /> : null
+}
+
 /** Empty screen as an invitation: an empty plate (optionally with an icon), one sentence, one action. */
 export function EmptyState({ icon, title, text, children }: { icon?: IconName; title: string; text: string; children: ReactNode }) {
   return (
